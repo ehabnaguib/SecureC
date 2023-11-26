@@ -9,6 +9,7 @@ import com.ehabnaguib.android.privatecontacts.Contact
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
+
 @Dao
 interface ContactDao {
 
