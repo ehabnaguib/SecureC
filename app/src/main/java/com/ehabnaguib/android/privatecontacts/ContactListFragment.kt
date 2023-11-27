@@ -41,7 +41,7 @@ class ContactListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentContactListBinding.inflate(inflater, container, false)
-        binding.contactRecyclerView.layoutManager = LinearLayoutManager(context)
+        //binding.contactRecyclerView.layoutManager = LinearLayoutManager(context)
         return binding.root
     }
 
@@ -65,10 +65,10 @@ class ContactListFragment : Fragment() {
                 val newContact : Contact = Contact(id = UUID.randomUUID(), name = "")
                 viewLifecycleOwner.lifecycleScope.launch {
                     contactListViewModel.addContact(newContact)
+                    findNavController().navigate(
+                        ContactListFragmentDirections.openContactDetail(newContact.id)
+                    )
                 }
-                findNavController().navigate(
-                    ContactListFragmentDirections.openContactDetail(newContact.id)
-                )
                 true
             }
             else -> super.onOptionsItemSelected(item)

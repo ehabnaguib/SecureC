@@ -42,7 +42,7 @@ class ContactRepository private constructor (context : Context) {
 
         fun get(): ContactRepository {
             return INSTANCE
-                ?: throw IllegalStateException("CrimeRepository must be initialized")
+                ?: throw IllegalStateException("Contact Repository must be initialized")
         }
     }
 

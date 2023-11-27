@@ -76,6 +76,9 @@ class ContactDetailFragment : Fragment() {
             if (contactName.text.toString() != contact.name) {
                 contactName.setText(contact.name)
             }
+            if (contactNumber.text.toString() != contact.number) {
+                contactNumber.setText(contact.number)
+            }
         }
     }
 }
