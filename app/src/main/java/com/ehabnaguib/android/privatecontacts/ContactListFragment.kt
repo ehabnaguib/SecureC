@@ -12,7 +12,7 @@ import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactListBinding
-
+import java.util.UUID
 
 
 class ContactListFragment : Fragment() {
@@ -57,8 +57,9 @@ class ContactListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.new_contact -> {
+                val newContact : Contact = Contact(id = UUID.randomUUID(), name = "")
                 findNavController().navigate(
-                    ContactListFragmentDirections.openContactDetail()
+                    ContactListFragmentDirections.openContactDetail(newContact.id)
                 )
                 true
             }

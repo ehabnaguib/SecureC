@@ -8,9 +8,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.navArgs
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactDetailBinding
 import kotlinx.coroutines.launch
 
@@ -23,6 +25,11 @@ class ContactDetailFragment : Fragment() {
             "Cannot access binding because it is null. Is the view visible?"
         }
 
+    private val args: ContactDetailFragmentArgs by navArgs()
+
+    private val contactDetailViewModel: ContactDetailViewModel by viewModels {
+        ContactDetailViewModelFactory(args.contactId)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
