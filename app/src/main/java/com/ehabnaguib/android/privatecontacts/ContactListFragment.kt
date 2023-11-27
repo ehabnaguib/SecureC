@@ -9,6 +9,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactListBinding
 
@@ -56,7 +57,9 @@ class ContactListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.new_contact -> {
-                Toast.makeText(requireActivity(), "fuck you", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(
+                    ContactListFragmentDirections.openContactDetail()
+                )
                 true
             }
             else -> super.onOptionsItemSelected(item)
