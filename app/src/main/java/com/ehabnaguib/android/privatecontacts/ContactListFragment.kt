@@ -10,7 +10,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactListBinding
@@ -41,12 +43,25 @@ class ContactListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentContactListBinding.inflate(inflater, container, false)
-        //binding.contactRecyclerView.layoutManager = LinearLayoutManager(context)
+        binding.contactRecyclerView.layoutManager = LinearLayoutManager(context)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                contactListViewModel.contacts.collect { contacts ->
+                    binding.contactRecyclerView.adapter =
+                        ContactListAdapter(contacts) { contactId ->
+                            findNavController().navigate(
+                                ContactListFragmentDirections.openContactDetail(contactId)
+                            )
+                        }
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {

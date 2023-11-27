@@ -6,6 +6,7 @@ import com.ehabnaguib.android.privatecontacts.database.ContactDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 private const val DATABASE_NAME ="crime-database"
@@ -27,23 +28,31 @@ class ContactRepository private constructor (context : Context) {
 
     suspend fun addContact(contact : Contact) = contactDatabase.contactDao().addContact(contact)
 
-    suspend fun updateContact(contact : Contact) = contactDatabase.contactDao().updateContact(contact)
+    fun updateContact(contact : Contact) {
+        coroutineScope.launch {
+            contactDatabase.contactDao().updateContact(contact)}
 
-    suspend fun deleteContact (contact : Contact) = contactDatabase.contactDao().deleteContact(contact)
+    }
 
-    companion object {
-        private var INSTANCE: ContactRepository? = null
-
-        fun initialize(context: Context) {
-            if (INSTANCE == null) {
-                INSTANCE = ContactRepository(context)
-            }
-        }
-
-        fun get(): ContactRepository {
-            return INSTANCE
-                ?: throw IllegalStateException("Contact Repository must be initialized")
+    fun deleteContact (contact : Contact) {
+        coroutineScope.launch {
+            contactDatabase.contactDao().deleteContact(contact)
         }
     }
+
+companion object {
+    private var INSTANCE: ContactRepository? = null
+
+    fun initialize(context: Context) {
+        if (INSTANCE == null) {
+            INSTANCE = ContactRepository(context)
+        }
+    }
+
+    fun get(): ContactRepository {
+        return INSTANCE
+            ?: throw IllegalStateException("Contact Repository must be initialized")
+    }
+}
 
 }

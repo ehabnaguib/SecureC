@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 class ContactDetailViewModel (contactId : UUID) : ViewModel() {
-    
+
     private val contactRepository = ContactRepository.get()
 
     private val _contact: MutableStateFlow<Contact?> = MutableStateFlow(null)
@@ -29,9 +29,23 @@ class ContactDetailViewModel (contactId : UUID) : ViewModel() {
         }
     }
 
+    fun saveContact() {
+        contact.value?.let { contactRepository.updateContact(it)}
+    }
+
+    fun deleteContact() {
+        contact.value?.let { contactRepository.deleteContact(it)}
+    }
+
+
     override fun onCleared() {
         super.onCleared()
-       // contact.value?.let { contactRepository.updateContact(it) }
+
+        contact.value?.let { contact ->
+            if (contact.name.isBlank() && contact.number.isBlank())
+                contactRepository.deleteContact(contact)
+            else
+                contactRepository.updateContact(contact)}
     }
 }
 

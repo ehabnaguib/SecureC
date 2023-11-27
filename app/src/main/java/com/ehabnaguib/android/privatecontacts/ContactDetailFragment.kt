@@ -56,6 +56,18 @@ class ContactDetailFragment : Fragment() {
                 }
             }
 
+            saveButton.setOnClickListener{
+                contactDetailViewModel.saveContact()
+            }
+
+            deleteButton.setOnClickListener {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    contactDetailViewModel.deleteContact()
+                    requireActivity().supportFragmentManager.popBackStack()
+                }
+
+            }
+
             viewLifecycleOwner.lifecycleScope.launch {
                 viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     contactDetailViewModel.contact.collect { contact ->
@@ -65,6 +77,8 @@ class ContactDetailFragment : Fragment() {
             }
         }
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

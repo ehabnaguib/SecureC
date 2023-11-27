@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 
 class ContactListViewModel : ViewModel() {
     private val contactRepository = ContactRepository.get()
-    /*
+
     private val _contacts: MutableStateFlow<List<Contact>> = MutableStateFlow(emptyList())
     val contacts: StateFlow<List<Contact>>
         get() = _contacts.asStateFlow()
@@ -21,8 +21,6 @@ class ContactListViewModel : ViewModel() {
             }
         }
     }
-
-     */
 
     suspend fun addContact(contact: Contact) {
         contactRepository.addContact(contact)
