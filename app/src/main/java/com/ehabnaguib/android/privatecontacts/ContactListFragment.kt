@@ -9,9 +9,12 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactListBinding
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 
@@ -23,6 +26,8 @@ class ContactListFragment : Fragment() {
         get() =  checkNotNull(_binding) {
             "cannot access binding because it's null."
         }
+
+    private val contactListViewModel: ContactListViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +63,9 @@ class ContactListFragment : Fragment() {
         return when (item.itemId) {
             R.id.new_contact -> {
                 val newContact : Contact = Contact(id = UUID.randomUUID(), name = "")
+                viewLifecycleOwner.lifecycleScope.launch {
+                    contactListViewModel.addContact(newContact)
+                }
                 findNavController().navigate(
                     ContactListFragmentDirections.openContactDetail(newContact.id)
                 )

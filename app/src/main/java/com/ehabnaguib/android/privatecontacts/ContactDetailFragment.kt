@@ -1,13 +1,12 @@
 package com.ehabnaguib.android.privatecontacts
 
 
-import android.net.Uri
 import android.os.Bundle
-import android.provider.ContactsContract
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -43,11 +42,17 @@ class ContactDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-/*
+
         binding.apply {
-            contactTitle.doOnTextChanged { text, _, _, _ ->
+            contactName.doOnTextChanged { text, _, _, _ ->
                 contactDetailViewModel.updateContact { oldContact ->
-                    oldContact.copy(title = text.toString())
+                    oldContact.copy(name = text.toString())
+                }
+            }
+
+            contactNumber.doOnTextChanged { text, _, _, _ ->
+                contactDetailViewModel.updateContact { oldContact ->
+                    oldContact.copy(number = text.toString())
                 }
             }
 
@@ -58,10 +63,7 @@ class ContactDetailFragment : Fragment() {
                     }
                 }
             }
-
         }
-
- */
     }
 
     override fun onDestroyView() {
@@ -69,31 +71,11 @@ class ContactDetailFragment : Fragment() {
         _binding = null
     }
 
-    /*
     private fun updateUi(contact: Contact) {
         binding.apply {
-            if (contactTitle.text.toString() != contact.title) {
-                contactTitle.setText(contact.title)
+            if (contactName.text.toString() != contact.name) {
+                contactName.setText(contact.name)
             }
         }
     }
-
-
-    private fun parseContactSelection(contactUri: Uri) {
-        val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
-
-        val queryCursor = requireActivity().contentResolver
-            .query(contactUri, queryFields, null, null, null)
-
-        queryCursor?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val suspect = cursor.getString(0)
-                contactDetailViewModel.updateContact { oldContact ->
-                    oldContact.copy(suspect = suspect)
-                }
-            }
-        }
-    }
-
-     */
 }
