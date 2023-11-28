@@ -54,6 +54,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <Button
+        android:id="@+id/call_button"
+        android:layout_marginTop="16dp"
+        android:textSize="20dp"
+        android:text="CALL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 
 
 </LinearLayout>
