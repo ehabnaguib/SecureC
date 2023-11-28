@@ -1,5 +1,7 @@
 package com.ehabnaguib.android.privatecontacts
 
+import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,5 +26,13 @@ class ContactListViewModel : ViewModel() {
 
     suspend fun addContact(contact: Contact) {
         contactRepository.addContact(contact)
+    }
+
+
+    fun getNumber(context : Context, position : Int) : String
+    {
+        val contacts = contacts.value
+        return contacts[position].number
+
     }
 }
