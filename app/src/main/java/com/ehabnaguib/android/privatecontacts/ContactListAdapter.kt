@@ -16,14 +16,11 @@ class ContactHolder(
             text = contact.name.ifBlank { "No Name" }
         }
 
-
         binding.contactNumber.text = contact.number
-
 
         binding.root.setOnClickListener {
             onContactClicked(contact.id)
         }
-
     }
 }
 
