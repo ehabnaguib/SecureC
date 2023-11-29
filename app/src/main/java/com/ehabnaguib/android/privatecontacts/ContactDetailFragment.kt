@@ -81,6 +81,7 @@ class ContactDetailFragment : Fragment() {
 
             saveButton.setOnClickListener{
                 contactDetailViewModel.saveContact()
+                Toast.makeText(requireActivity(), "Data Saved", Toast.LENGTH_SHORT).show()
             }
 
             deleteButton.setOnClickListener {
@@ -117,9 +118,6 @@ class ContactDetailFragment : Fragment() {
             }
         }
     }
-
-
-
 
 
     override fun onDestroyView() {

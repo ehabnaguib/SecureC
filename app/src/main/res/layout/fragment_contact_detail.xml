@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="16dp"
     android:orientation="vertical"
     tools:context=".ContactDetailFragment">
@@ -57,28 +58,42 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <Button
-        android:id="@+id/save_button"
-        android:layout_marginTop="32dp"
-        android:textSize="20dp"
-        android:text="SAVE"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1">
+        <Button
+            android:id="@+id/save_button"
+            android:layout_marginTop="32dp"
+            android:textSize="20dp"
+            android:text="SAVE"
+            android:background="@drawable/rounded_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-    <Button
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/call_button"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_button_green"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:text="CALL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/delete_button"
         android:layout_marginTop="16dp"
+        android:background="@drawable/rounded_button_red"
         android:textSize="20dp"
+        android:textColor="@color/white"
         android:text="DELETE"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <Button
-        android:id="@+id/call_button"
-        android:layout_marginTop="16dp"
-        android:textSize="20dp"
-        android:text="CALL"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+
 
 </LinearLayout>
