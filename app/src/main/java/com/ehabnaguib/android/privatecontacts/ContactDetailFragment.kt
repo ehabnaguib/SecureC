@@ -88,6 +88,10 @@ class ContactDetailFragment : Fragment() {
                 }
             }
 
+            contactPhoto.setOnClickListener {
+
+            }
+
             callButton.setOnClickListener {
                 when {
                     ContextCompat.checkSelfPermission(requireActivity(),

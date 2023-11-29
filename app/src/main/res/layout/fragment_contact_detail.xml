@@ -8,6 +8,13 @@
     android:orientation="vertical"
     tools:context=".ContactDetailFragment">
 
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:id="@+id/contact_photo"
+        android:layout_gravity="center"
+        android:foreground="@drawable/image_person_24"/>
+
     <androidx.cardview.widget.CardView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -30,7 +37,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceHeadline5"
+                android:textAppearance="?attr/textAppearanceHeadline6"
                 android:text="Contact Name" />
 
             <EditText
@@ -38,13 +45,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:importantForAutofill="no"
-                android:hint="Enter a name for your contact"
+                android:hint="Enter contact name here"
                 android:inputType="text" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceHeadline5"
+                android:textAppearance="?attr/textAppearanceHeadline6"
                 android:layout_marginTop="16dp"
                 android:text="Phone Number" />
 
@@ -53,7 +60,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:importantForAutofill="no"
-                android:hint="Enter a phone number for your contact "
+                android:hint="Enter phone number here"
                 android:inputType="text" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
