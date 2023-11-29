@@ -24,9 +24,6 @@ import kotlinx.coroutines.launch
 
 private const val CALL_PERMISSION_REQUEST_CODE = 1
 
-val dial = "tel:010123"
-val callIntent = Intent(Intent.ACTION_CALL, Uri.parse(dial))
-
 
 
 class ContactDetailFragment : Fragment() {
@@ -41,7 +38,7 @@ class ContactDetailFragment : Fragment() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            startActivity(callIntent)
+            call()
         } else {
             Toast.makeText(requireActivity(), "Allow permission from the settings.", Toast.LENGTH_SHORT).show()
         }
@@ -96,7 +93,7 @@ class ContactDetailFragment : Fragment() {
                     ContextCompat.checkSelfPermission(requireActivity(),
                         android.Manifest.permission.CALL_PHONE
                     ) == PackageManager.PERMISSION_GRANTED -> {
-                        startActivity(callIntent)
+                        call()
                     }
                     ActivityCompat.shouldShowRequestPermissionRationale(
                         requireActivity(), android.Manifest.permission.CALL_PHONE) -> {
@@ -134,5 +131,10 @@ class ContactDetailFragment : Fragment() {
                 contactNumber.setText(contact.number)
             }
         }
+    }
+    private fun call(){
+        val number = binding.contactNumber.text.toString()
+        val callIntent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number"))
+        startActivity(callIntent)
     }
 }

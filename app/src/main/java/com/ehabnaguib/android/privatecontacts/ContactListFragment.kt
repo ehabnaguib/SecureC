@@ -46,7 +46,7 @@ class ContactListFragment : Fragment() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            startActivity(callIntent)
+            Toast.makeText(requireActivity(), "You can now make phone calls.", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(requireActivity(), "Allow permission from the settings.", Toast.LENGTH_SHORT).show()
         }
@@ -88,8 +88,6 @@ class ContactListFragment : Fragment() {
                 binding.contactRecyclerView.removeViewAt(viewHolder.adapterPosition)
                 val number = contactListViewModel.getNumber(requireActivity(), viewHolder.adapterPosition)
                 callNumber(number)
-
-
             }
         }
 
