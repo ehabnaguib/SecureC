@@ -85,8 +85,10 @@ class ContactListFragment : Fragment() {
         }
         val swipeHandler = object : SwipeToDeleteCallback(requireActivity()) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                binding.contactRecyclerView.removeViewAt(viewHolder.adapterPosition)
                 val number = contactListViewModel.getNumber(requireActivity(), viewHolder.adapterPosition)
                 callNumber(number)
+
 
             }
         }
