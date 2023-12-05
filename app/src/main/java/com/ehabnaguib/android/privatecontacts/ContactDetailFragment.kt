@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -238,18 +240,21 @@ class ContactDetailFragment : Fragment() {
         val inputStream = context.contentResolver.openInputStream(imageUri)
         val originalBitmap = BitmapFactory.decodeStream(inputStream)
 
+        val ei = ExifInterface(inputStream!!)
 
-        val downscaledBitmap = Bitmap.createScaledBitmap(
-            originalBitmap,
-            convertDpToPx(context, 400),
-            (originalBitmap.height * (convertDpToPx(context, 400).toFloat() / originalBitmap.width)).toInt(),
-            true
-        )
+        val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+
+        val editedBitmap = when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(originalBitmap, 90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(originalBitmap, 180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(originalBitmap, 270f)
+            else -> originalBitmap
+        }
 
         val file = File(context.filesDir, photoName)
         val outputStream = FileOutputStream(file)
 
-        downscaledBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        editedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
 
         contactDetailViewModel.updateContact { oldContact ->
             oldContact.copy(photo = photoName)
@@ -258,8 +263,27 @@ class ContactDetailFragment : Fragment() {
         outputStream.close()
     }
 
+/*
+        val downscaledBitmap = Bitmap.createScaledBitmap(
+            originalBitmap,
+            convertDpToPx(context, 400),
+            (originalBitmap.height * (convertDpToPx(context, 400).toFloat() / originalBitmap.width)).toInt(),
+            true
+        )
+
+ */
+
+
+
     fun convertDpToPx(context: Context, dp: Int): Int {
         return (dp * (context.resources.displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)).roundToInt()
+    }
+
+    fun rotateImage(source: Bitmap, angle: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(angle)
+        return Bitmap.createBitmap(source, 0, 0, source.width, source.height,
+            matrix, true)
     }
 
 }
