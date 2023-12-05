@@ -4,7 +4,9 @@ package com.ehabnaguib.android.privatecontacts
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -24,8 +26,6 @@ import kotlinx.coroutines.launch
 
 private const val CALL_PERMISSION_REQUEST_CODE = 1
 
-
-
 class ContactDetailFragment : Fragment() {
 
     private var _binding: FragmentContactDetailBinding? = null
@@ -41,6 +41,26 @@ class ContactDetailFragment : Fragment() {
             call()
         } else {
             Toast.makeText(requireActivity(), "Allow permission from the settings.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val requestPhotoPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            photoPickerLauncher.launch("image/*")
+        } else {
+            Toast.makeText(requireActivity(), "Allow permission from the settings.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val photoPickerLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+
+        } else {
+            Toast.makeText(requireActivity(), "Cound't get image", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -89,6 +109,39 @@ class ContactDetailFragment : Fragment() {
             }
 
             contactPhoto.setOnClickListener {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    when {
+                        ContextCompat.checkSelfPermission(requireActivity(),
+                            android.Manifest.permission.READ_MEDIA_IMAGES
+                        ) == PackageManager.PERMISSION_GRANTED -> {
+                            pickPhoto()
+                        }
+                        ActivityCompat.shouldShowRequestPermissionRationale(
+                            requireActivity(), android.Manifest.permission.READ_MEDIA_IMAGES) -> {
+                            Toast.makeText(requireActivity(), "You just denied permission.", Toast.LENGTH_SHORT).show()
+                        }
+                        else -> {
+                            requestPhotoPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES)
+                        }
+                    }
+                }
+                else {
+                    when {
+                        ContextCompat.checkSelfPermission(requireActivity(),
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE
+                        ) == PackageManager.PERMISSION_GRANTED -> {
+                            pickPhoto()
+                        }
+                        ActivityCompat.shouldShowRequestPermissionRationale(
+                            requireActivity(), android.Manifest.permission.READ_EXTERNAL_STORAGE) -> {
+                            Toast.makeText(requireActivity(), "You just denied permission.", Toast.LENGTH_SHORT).show()
+                        }
+                        else -> {
+                            requestPhotoPermissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                        }
+                    }
+                }
+
 
             }
 
@@ -140,5 +193,10 @@ class ContactDetailFragment : Fragment() {
         val number = binding.contactNumber.text.toString()
         val callIntent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number"))
         startActivity(callIntent)
+    }
+
+    private fun pickPhoto(){
+        val photoIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivity(photoIntent)
     }
 }
