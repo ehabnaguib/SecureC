@@ -11,8 +11,6 @@ import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
-import android.util.DisplayMetrics
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -22,8 +20,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -34,13 +30,8 @@ import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactDetailB
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
-import java.io.OutputStream
 import java.util.Date
-import kotlin.io.path.fileVisitor
-import kotlin.math.roundToInt
 
-private const val CALL_PERMISSION_REQUEST_CODE = 1
 
 class ContactDetailFragment : Fragment() {
 
@@ -50,26 +41,29 @@ class ContactDetailFragment : Fragment() {
             "Cannot access binding because it is null. Is the view visible?"
         }
 
+    private val args: ContactDetailFragmentArgs by navArgs()
+
+    private val contactDetailViewModel: ContactDetailViewModel by viewModels {
+        ContactDetailViewModelFactory(args.contactId)
+    }
     private var photoName : String? = ""
 
     private val requestCallPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
-        if (isGranted) {
+        if (isGranted)
             call()
-        } else {
+        else
             Toast.makeText(requireActivity(), "Allow permission from the settings.", Toast.LENGTH_SHORT).show()
-        }
     }
 
     private val requestPhotoPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
-        if (isGranted) {
+        if (isGranted)
             photoPickerLauncher.launch("image/*")
-        } else {
+        else
             Toast.makeText(requireActivity(), "Allow permission from the settings.", Toast.LENGTH_SHORT).show()
-        }
     }
 
     private val photoPickerLauncher = registerForActivityResult(
@@ -79,24 +73,20 @@ class ContactDetailFragment : Fragment() {
             photoName = "IMG_${Date()}.JPG"
             binding.contactPhoto.foreground = null
             downscaleImageAndSave(requireActivity(), uri, photoName!!)
-        } else {
+        } else
             Toast.makeText(requireActivity(), "Cound't get image", Toast.LENGTH_SHORT).show()
-        }
     }
 
-    private val args: ContactDetailFragmentArgs by navArgs()
 
-    private val contactDetailViewModel: ContactDetailViewModel by viewModels {
-        ContactDetailViewModelFactory(args.contactId)
-    }
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding =
-            FragmentContactDetailBinding.inflate(inflater, container, false)
+        _binding = FragmentContactDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -116,14 +106,25 @@ class ContactDetailFragment : Fragment() {
                 }
             }
 
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    contactDetailViewModel.contact.collect { contact ->
+                        contact?.let { updateUi(it) }
+                    }
+                }
+            }
+
             saveButton.setOnClickListener{
                 contactDetailViewModel.saveContact()
+                requireActivity().supportFragmentManager.popBackStack()
                 Toast.makeText(requireActivity(), "Data Saved", Toast.LENGTH_SHORT).show()
             }
 
             deleteButton.setOnClickListener {
                 viewLifecycleOwner.lifecycleScope.launch {
                     contactDetailViewModel.deleteContact()
+                    deletePhotoFile(requireActivity())
+                    Toast.makeText(requireActivity(), "Deleted", Toast.LENGTH_SHORT).show()
                     requireActivity().supportFragmentManager.popBackStack()
                 }
             }
@@ -178,17 +179,6 @@ class ContactDetailFragment : Fragment() {
                         else -> {
                             requestPhotoPermissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
                         }
-                    }
-                }
-
-
-            }
-
-
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    contactDetailViewModel.contact.collect { contact ->
-                        contact?.let { updateUi(it) }
                     }
                 }
             }
@@ -256,6 +246,8 @@ class ContactDetailFragment : Fragment() {
             else -> originalBitmap
         }
 
+        deletePhotoFile(context)
+
         val file = File(context.filesDir, photoName)
         val outputStream = FileOutputStream(file)
 
@@ -266,6 +258,15 @@ class ContactDetailFragment : Fragment() {
         }
 
         outputStream.close()
+    }
+
+    private fun deletePhotoFile(context: Context) {
+        val oldPhotoName: String = contactDetailViewModel.getPhotoName()
+        if (oldPhotoName.isNotBlank()) {
+            val file = File(context.filesDir, oldPhotoName)
+            if (file.exists())
+                file.delete()
+        }
     }
 
 

@@ -18,11 +18,16 @@ class ContactDetailViewModel (contactId : UUID) : ViewModel() {
     private val _contact: MutableStateFlow<Contact?> = MutableStateFlow(null)
     val contact: StateFlow<Contact?> = _contact.asStateFlow()
 
+
+
     init {
         viewModelScope.launch {
             _contact.value = contactRepository.getContact(contactId)
         }
     }
+
+
+
 
     fun updateContact(onUpdate: (Contact) -> Contact) {
         _contact.update { oldContact ->
@@ -31,24 +36,35 @@ class ContactDetailViewModel (contactId : UUID) : ViewModel() {
     }
 
     fun saveContact() {
-        contact.value?.let { contactRepository.updateContact(it)}
-    }
-
-    fun deleteContact() {
-        contact.value?.let { contactRepository.deleteContact(it)}
-    }
-
-
-    override fun onCleared() {
-        super.onCleared()
-
         contact.value?.let { contact ->
             if (contact.name.isBlank() && contact.number.isBlank())
                 contactRepository.deleteContact(contact)
             else
                 contactRepository.updateContact(contact)}
     }
+
+    fun deleteContact() {
+        contact.value?.let { contactRepository.deleteContact(it)}
+    }
+
+    fun getPhotoName() : String {
+        var currentPhotoName = ""
+        contact.value?.let{
+            currentPhotoName = it.photo
+            updateContact { oldContact ->
+                oldContact.copy(photo = "")
+            }
+        }
+        return currentPhotoName
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        saveContact()
+    }
 }
+
+
 
 class ContactDetailViewModelFactory(
     private val contactId: UUID
