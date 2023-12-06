@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.DisplayMetrics
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +23,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -32,7 +34,10 @@ import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactDetailB
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.OutputStream
 import java.util.Date
+import kotlin.io.path.fileVisitor
 import kotlin.math.roundToInt
 
 private const val CALL_PERMISSION_REQUEST_CODE = 1
@@ -222,27 +227,27 @@ class ContactDetailFragment : Fragment() {
         startActivity(callIntent)
     }
 
-    fun storePhoto(){
-        photoName = "IMG_${Date()}.JPG"
-        val photoFile = File(
-            requireContext().applicationContext.filesDir,
-            photoName
-        )
-        val photoUri = FileProvider.getUriForFile(
-            requireContext(),
-            "com.bignerdranch.android.criminalintent.fileprovider",
-            photoFile
-        )
-    }
+    private fun downscaleImageAndSave(context: Context, imageUri: Uri, photoName: String) {
 
-    fun downscaleImageAndSave(context: Context, imageUri: Uri, photoName: String) {
+        val inputStream1 = context.contentResolver.openInputStream(imageUri)
 
-        val inputStream = context.contentResolver.openInputStream(imageUri)
-        val originalBitmap = BitmapFactory.decodeStream(inputStream)
-
-        val ei = ExifInterface(inputStream!!)
+        if (inputStream1 == null){
+            Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val ei = ExifInterface(inputStream1)
+        inputStream1.close()
 
         val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+        Log.d("ContactDetailFragment", orientation.toString())
+
+        val inputStream2 = context.contentResolver.openInputStream(imageUri)
+        if (inputStream2 == null){
+            Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val originalBitmap = BitmapFactory.decodeStream(inputStream2)
+        inputStream2.close()
 
         val editedBitmap = when (orientation) {
             ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(originalBitmap, 90f)
@@ -263,23 +268,8 @@ class ContactDetailFragment : Fragment() {
         outputStream.close()
     }
 
-/*
-        val downscaledBitmap = Bitmap.createScaledBitmap(
-            originalBitmap,
-            convertDpToPx(context, 400),
-            (originalBitmap.height * (convertDpToPx(context, 400).toFloat() / originalBitmap.width)).toInt(),
-            true
-        )
 
- */
-
-
-
-    fun convertDpToPx(context: Context, dp: Int): Int {
-        return (dp * (context.resources.displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)).roundToInt()
-    }
-
-    fun rotateImage(source: Bitmap, angle: Float): Bitmap {
+    private fun rotateImage(source: Bitmap, angle: Float): Bitmap {
         val matrix = Matrix()
         matrix.postRotate(angle)
         return Bitmap.createBitmap(source, 0, 0, source.width, source.height,
