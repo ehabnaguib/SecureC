@@ -75,7 +75,7 @@ class ContactListFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 contactListViewModel.contacts.collect { contacts ->
                     binding.contactRecyclerView.adapter =
-                        ContactListAdapter(contacts) { contactId ->
+                        ContactListAdapter(requireActivity(), contacts) { contactId ->
                             findNavController().navigate(
                                 ContactListFragmentDirections.openContactDetail(contactId)
                             )
