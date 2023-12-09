@@ -114,7 +114,7 @@ class ContactDetailFragment : Fragment() {
                 }
             }
 
-            saveButton.setOnClickListener{
+            saveButton.setOnClickListener {
                 contactDetailViewModel.saveContact()
                 requireActivity().supportFragmentManager.popBackStack()
                 Toast.makeText(requireActivity(), "Data Saved", Toast.LENGTH_SHORT).show()
@@ -131,18 +131,27 @@ class ContactDetailFragment : Fragment() {
 
             callButton.setOnClickListener {
                 when {
-                    ContextCompat.checkSelfPermission(requireActivity(),
+                    ContextCompat.checkSelfPermission(
+                        requireActivity(),
                         android.Manifest.permission.CALL_PHONE
                     ) == PackageManager.PERMISSION_GRANTED -> {
                         call()
                     }
+
                     ActivityCompat.shouldShowRequestPermissionRationale(
-                        requireActivity(), android.Manifest.permission.CALL_PHONE) -> {
-                        Toast.makeText(requireActivity(), "You just denied permission.", Toast.LENGTH_SHORT).show()
+                        requireActivity(), android.Manifest.permission.CALL_PHONE
+                    ) -> {
+                        Toast.makeText(
+                            requireActivity(),
+                            "You just denied permission.",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
+
                     else -> {
                         requestCallPermissionLauncher.launch(
-                            android.Manifest.permission.CALL_PHONE)
+                            android.Manifest.permission.CALL_PHONE
+                        )
                     }
                 }
             }
@@ -151,130 +160,162 @@ class ContactDetailFragment : Fragment() {
             contactPhoto.setOnClickListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     when {
-                        ContextCompat.checkSelfPermission(requireActivity(),
+                        ContextCompat.checkSelfPermission(
+                            requireActivity(),
                             android.Manifest.permission.READ_MEDIA_IMAGES
                         ) == PackageManager.PERMISSION_GRANTED -> {
                             photoPickerLauncher.launch("image/*")
                         }
+
                         ActivityCompat.shouldShowRequestPermissionRationale(
-                            requireActivity(), android.Manifest.permission.READ_MEDIA_IMAGES) -> {
-                            Toast.makeText(requireActivity(), "You just denied permission.", Toast.LENGTH_SHORT).show()
+                            requireActivity(), android.Manifest.permission.READ_MEDIA_IMAGES
+                        ) -> {
+                            Toast.makeText(
+                                requireActivity(),
+                                "You just denied permission.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
+
                         else -> {
                             requestPhotoPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES)
                         }
                     }
-                }
-                else {
+                } else {
                     when {
-                        ContextCompat.checkSelfPermission(requireActivity(),
+                        ContextCompat.checkSelfPermission(
+                            requireActivity(),
                             android.Manifest.permission.READ_EXTERNAL_STORAGE
                         ) == PackageManager.PERMISSION_GRANTED -> {
                             photoPickerLauncher.launch("image/*")
                         }
+
                         ActivityCompat.shouldShowRequestPermissionRationale(
-                            requireActivity(), android.Manifest.permission.READ_EXTERNAL_STORAGE) -> {
-                            Toast.makeText(requireActivity(), "You just denied permission.", Toast.LENGTH_SHORT).show()
+                            requireActivity(), android.Manifest.permission.READ_EXTERNAL_STORAGE
+                        ) -> {
+                            Toast.makeText(
+                                requireActivity(),
+                                "You just denied permission.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
+
                         else -> {
                             requestPhotoPermissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
                         }
                     }
                 }
             }
+
+            binding.map.setOnClickListener {
+                val latitude = 30.0591931 // Replace with your latitude
+                val longitude = 31.3549231 // Replace with your longitude
+                val label = "Ehab's Home" // Replace with your label
+                val uriBegin = "geo:$latitude,$longitude"
+                val query = "$latitude,$longitude($label)"
+                val encodedQuery = Uri.encode(query)
+                val uriString = "$uriBegin?q=$encodedQuery&z=16"
+                val uri = Uri.parse(uriString)
+
+                val mapIntent = Intent(Intent.ACTION_VIEW, uri).apply {
+                    // Ensure the Google Maps app handles the intent
+                    `package` = "com.google.android.apps.maps"
+                }
+                startActivity(mapIntent)
+            }
         }
     }
 
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
+        override fun onDestroyView() {
+            super.onDestroyView()
+            _binding = null
+        }
 
-    private fun updateUi(contact: Contact) {
-        binding.apply {
-            if (contactName.text.toString() != contact.name) {
-                contactName.setText(contact.name)
-            }
-            if (contactNumber.text.toString() != contact.number) {
-                contactNumber.setText(contact.number)
-            }
-            if (contact.photo.isNotBlank()){
-                binding.contactPhoto.foreground = null
-                val file = File(requireActivity().filesDir, contact.photo)
+        private fun updateUi(contact: Contact) {
+            binding.apply {
+                if (contactName.text.toString() != contact.name) {
+                    contactName.setText(contact.name)
+                }
+                if (contactNumber.text.toString() != contact.number) {
+                    contactNumber.setText(contact.number)
+                }
+                if (contact.photo.isNotBlank()){
+                    binding.contactPhoto.foreground = null
+                    val file = File(requireActivity().filesDir, contact.photo)
 
-                if (file.exists()) {
-                    val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                    if (file.exists()) {
+                        val bitmap = BitmapFactory.decodeFile(file.absolutePath)
 
-                    contactPhoto.setImageBitmap(bitmap)
+                        contactPhoto.setImageBitmap(bitmap)
+                    }
                 }
             }
         }
-    }
-    private fun call(){
-        val number = binding.contactNumber.text.toString()
-        val callIntent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number"))
-        startActivity(callIntent)
-    }
-
-    private fun downscaleImageAndSave(context: Context, imageUri: Uri, photoName: String) {
-
-        val inputStream1 = context.contentResolver.openInputStream(imageUri)
-
-        if (inputStream1 == null){
-            Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
-            return
-        }
-        val ei = ExifInterface(inputStream1)
-        inputStream1.close()
-
-        val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-        Log.d("ContactDetailFragment", orientation.toString())
-
-        val inputStream2 = context.contentResolver.openInputStream(imageUri)
-        if (inputStream2 == null){
-            Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
-            return
-        }
-        val originalBitmap = BitmapFactory.decodeStream(inputStream2)
-        inputStream2.close()
-
-        val editedBitmap = when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(originalBitmap, 90f)
-            ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(originalBitmap, 180f)
-            ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(originalBitmap, 270f)
-            else -> originalBitmap
+        private fun call(){
+            val number = binding.contactNumber.text.toString()
+            val callIntent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number"))
+            startActivity(callIntent)
         }
 
-        deletePhotoFile(context)
+        private fun downscaleImageAndSave(context: Context, imageUri: Uri, photoName: String) {
 
-        val file = File(context.filesDir, photoName)
-        val outputStream = FileOutputStream(file)
+            val inputStream1 = context.contentResolver.openInputStream(imageUri)
 
-        editedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            if (inputStream1 == null){
+                Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
+                return
+            }
+            val ei = ExifInterface(inputStream1)
+            inputStream1.close()
 
-        contactDetailViewModel.updateContact { oldContact ->
-            oldContact.copy(photo = photoName)
+            val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+            Log.d("ContactDetailFragment", orientation.toString())
+
+            val inputStream2 = context.contentResolver.openInputStream(imageUri)
+            if (inputStream2 == null){
+                Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
+                return
+            }
+            val originalBitmap = BitmapFactory.decodeStream(inputStream2)
+            inputStream2.close()
+
+            val editedBitmap = when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(originalBitmap, 90f)
+                ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(originalBitmap, 180f)
+                ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(originalBitmap, 270f)
+                else -> originalBitmap
+            }
+
+            deletePhotoFile(context)
+
+            val file = File(context.filesDir, photoName)
+            val outputStream = FileOutputStream(file)
+
+            editedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+
+            contactDetailViewModel.updateContact { oldContact ->
+                oldContact.copy(photo = photoName)
+            }
+
+            outputStream.close()
         }
 
-        outputStream.close()
-    }
-
-    private fun deletePhotoFile(context: Context) {
-        val oldPhotoName: String = contactDetailViewModel.getPhotoName()
-        if (oldPhotoName.isNotBlank()) {
-            val file = File(context.filesDir, oldPhotoName)
-            if (file.exists())
-                file.delete()
+        private fun deletePhotoFile(context: Context) {
+            val oldPhotoName: String = contactDetailViewModel.getPhotoName()
+            if (oldPhotoName.isNotBlank()) {
+                val file = File(context.filesDir, oldPhotoName)
+                if (file.exists())
+                    file.delete()
+            }
         }
+
+
+        private fun rotateImage(source: Bitmap, angle: Float): Bitmap {
+            val matrix = Matrix()
+            matrix.postRotate(angle)
+            return Bitmap.createBitmap(source, 0, 0, source.width, source.height,
+                matrix, true)
+        }
+
     }
-
-
-    private fun rotateImage(source: Bitmap, angle: Float): Bitmap {
-        val matrix = Matrix()
-        matrix.postRotate(angle)
-        return Bitmap.createBitmap(source, 0, 0, source.width, source.height,
-            matrix, true)
-    }
-
-}
