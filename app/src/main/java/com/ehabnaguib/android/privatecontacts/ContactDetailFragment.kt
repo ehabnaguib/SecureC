@@ -27,6 +27,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactDetailBinding
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -207,7 +210,7 @@ class ContactDetailFragment : Fragment() {
                 }
             }
 
-            binding.map.setOnClickListener {
+            binding.mapButton.setOnClickListener {
                 val latitude = 30.0591931 // Replace with your latitude
                 val longitude = 31.3549231 // Replace with your longitude
                 val label = "Ehab's Home" // Replace with your label
@@ -223,99 +226,118 @@ class ContactDetailFragment : Fragment() {
                 }
                 startActivity(mapIntent)
             }
+
+            /*
+            val mapFragment = childFragmentManager.findFragmentById(R.id.map_view) as SupportMapFragment?
+
+            mapFragment?.getMapAsync { googleMap ->
+                // Map is ready to be used.
+                googleMap.setOnMapClickListener { latLng ->
+                    // When the user clicks on the map, we want to add a marker
+                    googleMap.clear()
+
+                    // Add a marker at the clicked location
+                    googleMap.addMarker(MarkerOptions().position(latLng).title("Selected Location"))
+
+                    // Optionally move the camera to the location
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10f))
+                }
+            }
+
+             */
         }
     }
 
 
-        override fun onDestroyView() {
-            super.onDestroyView()
-            _binding = null
-        }
-
-        private fun updateUi(contact: Contact) {
-            binding.apply {
-                if (contactName.text.toString() != contact.name) {
-                    contactName.setText(contact.name)
-                }
-                if (contactNumber.text.toString() != contact.number) {
-                    contactNumber.setText(contact.number)
-                }
-                if (contact.photo.isNotBlank()){
-                    binding.contactPhoto.foreground = null
-                    val file = File(requireActivity().filesDir, contact.photo)
-
-                    if (file.exists()) {
-                        val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-
-                        contactPhoto.setImageBitmap(bitmap)
-                    }
-                }
-            }
-        }
-        private fun call(){
-            val number = binding.contactNumber.text.toString()
-            val callIntent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number"))
-            startActivity(callIntent)
-        }
-
-        private fun downscaleImageAndSave(context: Context, imageUri: Uri, photoName: String) {
-
-            val inputStream1 = context.contentResolver.openInputStream(imageUri)
-
-            if (inputStream1 == null){
-                Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
-                return
-            }
-            val ei = ExifInterface(inputStream1)
-            inputStream1.close()
-
-            val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-            Log.d("ContactDetailFragment", orientation.toString())
-
-            val inputStream2 = context.contentResolver.openInputStream(imageUri)
-            if (inputStream2 == null){
-                Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
-                return
-            }
-            val originalBitmap = BitmapFactory.decodeStream(inputStream2)
-            inputStream2.close()
-
-            val editedBitmap = when (orientation) {
-                ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(originalBitmap, 90f)
-                ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(originalBitmap, 180f)
-                ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(originalBitmap, 270f)
-                else -> originalBitmap
-            }
-
-            deletePhotoFile(context)
-
-            val file = File(context.filesDir, photoName)
-            val outputStream = FileOutputStream(file)
-
-            editedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-
-            contactDetailViewModel.updateContact { oldContact ->
-                oldContact.copy(photo = photoName)
-            }
-
-            outputStream.close()
-        }
-
-        private fun deletePhotoFile(context: Context) {
-            val oldPhotoName: String = contactDetailViewModel.getPhotoName()
-            if (oldPhotoName.isNotBlank()) {
-                val file = File(context.filesDir, oldPhotoName)
-                if (file.exists())
-                    file.delete()
-            }
-        }
-
-
-        private fun rotateImage(source: Bitmap, angle: Float): Bitmap {
-            val matrix = Matrix()
-            matrix.postRotate(angle)
-            return Bitmap.createBitmap(source, 0, 0, source.width, source.height,
-                matrix, true)
-        }
-
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
+
+    private fun updateUi(contact: Contact) {
+        binding.apply {
+            if (contactName.text.toString() != contact.name) {
+                contactName.setText(contact.name)
+            }
+            if (contactNumber.text.toString() != contact.number) {
+                contactNumber.setText(contact.number)
+            }
+            if (contact.photo.isNotBlank()){
+                binding.contactPhoto.foreground = null
+                val file = File(requireActivity().filesDir, contact.photo)
+
+                if (file.exists()) {
+                    val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+
+                    contactPhoto.setImageBitmap(bitmap)
+                }
+            }
+        }
+    }
+    private fun call(){
+        val number = binding.contactNumber.text.toString()
+        val callIntent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number"))
+        startActivity(callIntent)
+    }
+
+    private fun downscaleImageAndSave(context: Context, imageUri: Uri, photoName: String) {
+
+        val inputStream1 = context.contentResolver.openInputStream(imageUri)
+
+        if (inputStream1 == null){
+            Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val ei = ExifInterface(inputStream1)
+        inputStream1.close()
+
+        val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+        Log.d("ContactDetailFragment", orientation.toString())
+
+        val inputStream2 = context.contentResolver.openInputStream(imageUri)
+        if (inputStream2 == null){
+            Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val originalBitmap = BitmapFactory.decodeStream(inputStream2)
+        inputStream2.close()
+
+        val editedBitmap = when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(originalBitmap, 90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(originalBitmap, 180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(originalBitmap, 270f)
+            else -> originalBitmap
+        }
+
+        deletePhotoFile(context)
+
+        val file = File(context.filesDir, photoName)
+        val outputStream = FileOutputStream(file)
+
+        editedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+
+        contactDetailViewModel.updateContact { oldContact ->
+            oldContact.copy(photo = photoName)
+        }
+
+        outputStream.close()
+    }
+
+    private fun deletePhotoFile(context: Context) {
+        val oldPhotoName: String = contactDetailViewModel.getPhotoName()
+        if (oldPhotoName.isNotBlank()) {
+            val file = File(context.filesDir, oldPhotoName)
+            if (file.exists())
+                file.delete()
+        }
+    }
+
+
+    private fun rotateImage(source: Bitmap, angle: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(angle)
+        return Bitmap.createBitmap(source, 0, 0, source.width, source.height,
+            matrix, true)
+    }
+
+}

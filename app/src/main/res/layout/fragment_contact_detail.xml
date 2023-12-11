@@ -69,7 +69,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:visibility="gone">
         <Button
             android:id="@+id/save_button"
             android:layout_marginTop="32dp"
@@ -77,7 +78,8 @@
             android:text="SAVE"
             android:background="@drawable/rounded_button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/call_button"
@@ -87,19 +89,31 @@
             android:textSize="20dp"
             android:text="CALL"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/map"
+            android:id="@+id/map_button"
             android:layout_marginTop="16dp"
             android:background="@drawable/rounded_button"
             android:textColor="@color/white"
             android:textSize="20dp"
             android:text="MAP"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
     </LinearLayout>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/location"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/rounded_button"
+        android:textSize="20dp"
+        android:textColor="@color/white"
+        android:text="SET LOCATION"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/delete_button"
