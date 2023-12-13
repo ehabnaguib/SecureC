@@ -25,6 +25,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactDetailBinding
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -225,6 +226,12 @@ class ContactDetailFragment : Fragment() {
                     `package` = "com.google.android.apps.maps"
                 }
                 startActivity(mapIntent)
+            }
+
+            setLocation.setOnClickListener {
+                findNavController().navigate(
+                    ContactDetailFragmentDirections.setLocation()
+                )
             }
 
             /*
