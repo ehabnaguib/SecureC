@@ -5,7 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.ehabnaguib.android.privatecontacts.Contact
+import com.ehabnaguib.android.privatecontacts.model.Contact
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 

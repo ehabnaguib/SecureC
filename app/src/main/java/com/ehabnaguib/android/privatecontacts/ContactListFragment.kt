@@ -11,7 +11,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SimpleAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -21,11 +20,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactListBinding
+import com.ehabnaguib.android.privatecontacts.model.Contact
 import com.ehabnaguib.android.privatecontacts.utils.SwipeToDeleteCallback
 import kotlinx.coroutines.launch
 import java.util.UUID

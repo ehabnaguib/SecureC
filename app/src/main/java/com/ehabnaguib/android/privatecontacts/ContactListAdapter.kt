@@ -3,11 +3,10 @@ package com.ehabnaguib.android.privatecontacts
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.ehabnaguib.android.privatecontacts.databinding.ListItemContactBinding
+import com.ehabnaguib.android.privatecontacts.model.Contact
 import java.io.File
 import java.util.UUID
 

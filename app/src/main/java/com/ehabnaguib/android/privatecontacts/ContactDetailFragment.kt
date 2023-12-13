@@ -28,9 +28,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactDetailBinding
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.MarkerOptions
+import com.ehabnaguib.android.privatecontacts.model.Contact
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
