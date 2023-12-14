@@ -1,15 +1,21 @@
 package com.ehabnaguib.android.privatecontacts
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.navArgs
+import com.ehabnaguib.android.privatecontacts.database.ContactTypeConverters
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentMapBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 
+
+const val TAG = "MapFragment"
 
 class MapFragment : Fragment() {
 
@@ -18,6 +24,10 @@ class MapFragment : Fragment() {
         get() =  checkNotNull(_binding) {
             "cannot access binding because it's null."
         }
+
+    private val args: MapFragmentArgs by navArgs()
+
+    var location : LatLng? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,13 +49,10 @@ class MapFragment : Fragment() {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
 
         mapFragment?.getMapAsync { googleMap ->
-            // Map is ready to be used.
             googleMap.setOnMapClickListener { latLng ->
-                // When the user clicks on the map, we want to add a marker
                 googleMap.clear()
-
-                // Add a marker at the clicked location
                 googleMap.addMarker(MarkerOptions().position(latLng).title("Selected Location"))
+                location = latLng
             }
         }
 

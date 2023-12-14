@@ -228,7 +228,7 @@ class ContactDetailFragment : Fragment() {
 
             setLocation.setOnClickListener {
                 findNavController().navigate(
-                    ContactDetailFragmentDirections.setLocation()
+                    ContactDetailFragmentDirections.setLocation(contactDetailViewModel.contact.value?.location)
                 )
             }
 

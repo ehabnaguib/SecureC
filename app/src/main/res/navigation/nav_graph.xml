@@ -30,5 +30,11 @@
         android:id="@+id/mapFragment"
         android:name="com.ehabnaguib.android.privatecontacts.MapFragment"
         android:label="fragment_map"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_map" >
+        <argument
+            android:name="location"
+            app:argType="android.os.Parcelable"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 </navigation>

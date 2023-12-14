@@ -6,9 +6,9 @@ import java.util.Date
 
 class ContactTypeConverters {
     @TypeConverter
-    fun fromLatLng(latLng: LatLng?): String? {
-        if (latLng != null)
-            return "${latLng.latitude},${latLng.longitude}"
+    fun fromLatLng(location: LatLng?): String? {
+        if (location != null)
+            return "${location.latitude},${location.longitude}"
         else return null
     }
 
