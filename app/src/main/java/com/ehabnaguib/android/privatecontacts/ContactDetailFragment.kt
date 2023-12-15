@@ -261,13 +261,20 @@ class ContactDetailFragment : Fragment() {
                 }
             }
 
+            setLocation.setOnClickListener {
+                findNavController().navigate(
+                    ContactDetailFragmentDirections.setLocation(contactDetailViewModel.contact.value?.location)
+                )
+            }
+
             location = contact.location
 
             if(location != null) {
                 mapView.visibility = VISIBLE
-                setLocation.visibility = GONE
+                setLocation.text = "Edit Location"
                 val mapFragment = childFragmentManager.findFragmentById(R.id.map_view) as SupportMapFragment?
                 mapFragment?.getMapAsync { googleMap ->
+                    googleMap.clear()
                     googleMap.addMarker(MarkerOptions().position(location!!))
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location!!, 14f))
                     googleMap.setOnMapClickListener {
@@ -290,12 +297,6 @@ class ContactDetailFragment : Fragment() {
             }
             else {
                 mapView.visibility = GONE
-                setLocation.visibility = VISIBLE
-                setLocation.setOnClickListener {
-                    findNavController().navigate(
-                        ContactDetailFragmentDirections.setLocation(contactDetailViewModel.contact.value?.location)
-                    )
-                }
             }
 
         }
