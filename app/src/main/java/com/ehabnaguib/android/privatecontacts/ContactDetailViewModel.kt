@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.ehabnaguib.android.privatecontacts.model.Contact
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,6 +62,13 @@ class ContactDetailViewModel (contactId : UUID) : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         saveContact()
+    }
+
+    fun getLocation(): LatLng? {
+        return if(contact.value != null) {
+            contact.value!!.location
+        } else
+            null
     }
 }
 

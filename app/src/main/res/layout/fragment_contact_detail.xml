@@ -65,6 +65,15 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/map_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:visibility="gone"/>
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -78,8 +87,7 @@
             android:text="SAVE"
             android:background="@drawable/rounded_button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
+            android:layout_height="wrap_content" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/call_button"
@@ -89,8 +97,7 @@
             android:textSize="20dp"
             android:text="CALL"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
+            android:layout_height="wrap_content" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/map_button"
@@ -100,8 +107,7 @@
             android:textSize="20dp"
             android:text="MAP"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
@@ -113,7 +119,8 @@
         android:textColor="@color/white"
         android:text="SET LOCATION"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/delete_button"
@@ -123,7 +130,8 @@
         android:textColor="@color/white"
         android:text="DELETE"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
 
 
 

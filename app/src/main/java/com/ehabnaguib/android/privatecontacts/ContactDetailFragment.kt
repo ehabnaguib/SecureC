@@ -15,12 +15,15 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -29,11 +32,16 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactDetailBinding
 import com.ehabnaguib.android.privatecontacts.model.Contact
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
 
+private const val TAG = "ContactDetailFragment"
 
 class ContactDetailFragment : Fragment() {
 
@@ -49,6 +57,8 @@ class ContactDetailFragment : Fragment() {
         ContactDetailViewModelFactory(args.contactId)
     }
     private var photoName : String? = ""
+
+    private var location : LatLng? = null
 
     private val requestCallPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -94,6 +104,8 @@ class ContactDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
 
         binding.apply {
             contactName.doOnTextChanged { text, _, _, _ ->
@@ -209,48 +221,19 @@ class ContactDetailFragment : Fragment() {
                 }
             }
 
-            binding.mapButton.setOnClickListener {
-                val latitude = 30.0591931 // Replace with your latitude
-                val longitude = 31.3549231 // Replace with your longitude
-                val label = "Ehab's Home" // Replace with your label
-                val uriBegin = "geo:$latitude,$longitude"
-                val query = "$latitude,$longitude($label)"
-                val encodedQuery = Uri.encode(query)
-                val uriString = "$uriBegin?q=$encodedQuery&z=16"
-                val uri = Uri.parse(uriString)
 
-                val mapIntent = Intent(Intent.ACTION_VIEW, uri).apply {
-                    // Ensure the Google Maps app handles the intent
-                    `package` = "com.google.android.apps.maps"
-                }
-                startActivity(mapIntent)
-            }
 
-            setLocation.setOnClickListener {
-                findNavController().navigate(
-                    ContactDetailFragmentDirections.setLocation(contactDetailViewModel.contact.value?.location)
-                )
-            }
-
-            /*
-            val mapFragment = childFragmentManager.findFragmentById(R.id.map_view) as SupportMapFragment?
-
-            mapFragment?.getMapAsync { googleMap ->
-                // Map is ready to be used.
-                googleMap.setOnMapClickListener { latLng ->
-                    // When the user clicks on the map, we want to add a marker
-                    googleMap.clear()
-
-                    // Add a marker at the clicked location
-                    googleMap.addMarker(MarkerOptions().position(latLng).title("Selected Location"))
-
-                    // Optionally move the camera to the location
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10f))
-                }
-            }
-
-             */
         }
+
+        setFragmentResultListener(
+            MapFragment.REQUEST_KEY_LOCATION
+        ) { _, bundle ->
+            val newLocation =
+                bundle.getParcelable(MapFragment.BUNDLE_KEY_LOCATION) as LatLng?
+            contactDetailViewModel.updateContact { it.copy(location = newLocation) }
+            Log.d(TAG, newLocation.toString())
+        }
+
     }
 
 
@@ -277,6 +260,44 @@ class ContactDetailFragment : Fragment() {
                     contactPhoto.setImageBitmap(bitmap)
                 }
             }
+
+            location = contact.location
+
+            if(location != null) {
+                mapView.visibility = VISIBLE
+                setLocation.visibility = GONE
+                val mapFragment = childFragmentManager.findFragmentById(R.id.map_view) as SupportMapFragment?
+                mapFragment?.getMapAsync { googleMap ->
+                    googleMap.addMarker(MarkerOptions().position(location!!))
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location!!, 14f))
+                    googleMap.setOnMapClickListener {
+                        val uriBegin = "geo:$location"
+                        val latitude = location!!.latitude
+                        val longitude = location!!.longitude
+                        val label = contact.name
+                        val query = "$latitude,$longitude($label)"
+                        val encodedQuery = Uri.encode(query)
+                        val uriString = "$uriBegin?q=$encodedQuery&z=16"
+                        val uri = Uri.parse(uriString)
+
+                        val mapIntent = Intent(Intent.ACTION_VIEW, uri).apply {
+                            // Ensure the Google Maps app handles the intent
+                            `package` = "com.google.android.apps.maps"
+                        }
+                        startActivity(mapIntent)
+                    }
+                }
+            }
+            else {
+                mapView.visibility = GONE
+                setLocation.visibility = VISIBLE
+                setLocation.setOnClickListener {
+                    findNavController().navigate(
+                        ContactDetailFragmentDirections.setLocation(contactDetailViewModel.contact.value?.location)
+                    )
+                }
+            }
+
         }
     }
     private fun call(){

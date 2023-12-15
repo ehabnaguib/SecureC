@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.navArgs
 import com.ehabnaguib.android.privatecontacts.database.ContactTypeConverters
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentMapBinding
@@ -15,7 +17,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 
 
-const val TAG = "MapFragment"
+private const val TAG = "MapFragment"
 
 class MapFragment : Fragment() {
 
@@ -27,7 +29,7 @@ class MapFragment : Fragment() {
 
     private val args: MapFragmentArgs by navArgs()
 
-    var location : LatLng? = null
+    private var location : LatLng? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,14 +50,30 @@ class MapFragment : Fragment() {
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
 
+        location = args.location as LatLng?
+        setFragmentResult(REQUEST_KEY_LOCATION, bundleOf(BUNDLE_KEY_LOCATION to location))
         mapFragment?.getMapAsync { googleMap ->
+            if (location != null){
+                googleMap.addMarker(MarkerOptions().position(location!!).title("Selected Location"))
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location!!, 10f))
+            }
+
             googleMap.setOnMapClickListener { latLng ->
                 googleMap.clear()
                 googleMap.addMarker(MarkerOptions().position(latLng).title("Selected Location"))
                 location = latLng
+                setFragmentResult(REQUEST_KEY_LOCATION, bundleOf(BUNDLE_KEY_LOCATION to location))
             }
         }
 
+
+
+
+
+    }
+    companion object {
+        const val REQUEST_KEY_LOCATION = "REQUEST_KEY_LOCATION"
+        const val BUNDLE_KEY_LOCATION = "BUNDLE_KEY_LOCATION"
     }
 
 
