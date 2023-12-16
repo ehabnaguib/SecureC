@@ -22,7 +22,6 @@ class ContactHolder(
 
 
         if(contact.photo.isNotBlank()) {
-            binding.contactPhoto.setBackgroundResource(R.drawable.background_black)
             val file = File(context.filesDir, contact.photo)
 
             if (file.exists()) {
