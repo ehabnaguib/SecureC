@@ -11,15 +11,21 @@ import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
@@ -40,6 +46,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
+import java.util.UUID
 
 private const val TAG = "ContactDetailFragment"
 
@@ -90,7 +97,99 @@ class ContactDetailFragment : Fragment() {
     }
 
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
 
+//        val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+//            override fun handleOnBackPressed() {
+//
+//                val builder = AlertDialog.Builder(requireActivity())
+//                builder.setTitle("Save Changes")
+//                builder.setMessage("Do you want to save the changes?")
+//                builder.setPositiveButton("Yes") { dialog, which ->
+//                    save()
+//                }
+//                builder.setNegativeButton("No") { dialog, which ->
+//                    dialog.dismiss()
+//                    // Handle the "No" case by closing the activity or whatever is appropriate for your app
+//                    requireActivity().finish()
+//                }
+//                builder.setNeutralButton("Cancel"){ dialog, which ->
+//
+//                }
+//                builder.setCancelable(false)
+//                builder.show()
+//                // Handle the back press here
+//                // e.g., pop the fragment from the stack, close an opened menu, etc.
+//                // If you want to propagate the back press event to the hosting activity, call remove()
+//                if (shouldInterceptBackPress()) {
+//                    // Intercepted the back press
+//                } else {
+//                    // If you want the default back press behavior to occur (e.g., back navigation),
+//                    // then call this:
+//                    isEnabled = false
+//                    requireActivity().onBackPressed()
+//                }
+//            }
+//        }
+//
+//        // Note that you need to remove the callback when the Fragment is destroyed
+//        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    private fun shouldInterceptBackPress(): Boolean {
+        // Your logic to determine if the back press should be intercepted
+        // Return true to intercept, false to continue with the regular back press handling
+        return true // or false based on your condition
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_contact_detail, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.delete_button -> {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    contactDetailViewModel.deleteContact()
+                    deletePhotoFile(requireActivity())
+                    Toast.makeText(requireActivity(), "Deleted", Toast.LENGTH_SHORT).show()
+                    requireActivity().supportFragmentManager.popBackStack()
+                }
+                return true
+            }
+            R.id.call_button -> {
+                when {
+                    ContextCompat.checkSelfPermission(
+                        requireActivity(),
+                        android.Manifest.permission.CALL_PHONE
+                    ) == PackageManager.PERMISSION_GRANTED -> {
+                        call()
+                    }
+
+                    ActivityCompat.shouldShowRequestPermissionRationale(
+                        requireActivity(), android.Manifest.permission.CALL_PHONE
+                    ) -> {
+                        Toast.makeText(
+                            requireActivity(),
+                            "You just denied permission.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    else -> {
+                        requestCallPermissionLauncher.launch(
+                            android.Manifest.permission.CALL_PHONE
+                        )
+                    }
+                }
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
 
 
     override fun onCreateView(
@@ -129,46 +228,10 @@ class ContactDetailFragment : Fragment() {
             }
 
             saveButton.setOnClickListener {
-                contactDetailViewModel.saveContact()
-                requireActivity().supportFragmentManager.popBackStack()
-                Toast.makeText(requireActivity(), "Data Saved", Toast.LENGTH_SHORT).show()
+                save()
             }
 
-            deleteButton.setOnClickListener {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    contactDetailViewModel.deleteContact()
-                    deletePhotoFile(requireActivity())
-                    Toast.makeText(requireActivity(), "Deleted", Toast.LENGTH_SHORT).show()
-                    requireActivity().supportFragmentManager.popBackStack()
-                }
-            }
 
-            callButton.setOnClickListener {
-                when {
-                    ContextCompat.checkSelfPermission(
-                        requireActivity(),
-                        android.Manifest.permission.CALL_PHONE
-                    ) == PackageManager.PERMISSION_GRANTED -> {
-                        call()
-                    }
-
-                    ActivityCompat.shouldShowRequestPermissionRationale(
-                        requireActivity(), android.Manifest.permission.CALL_PHONE
-                    ) -> {
-                        Toast.makeText(
-                            requireActivity(),
-                            "You just denied permission.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-
-                    else -> {
-                        requestCallPermissionLauncher.launch(
-                            android.Manifest.permission.CALL_PHONE
-                        )
-                    }
-                }
-            }
 
 
             contactPhoto.setOnClickListener {
@@ -236,6 +299,12 @@ class ContactDetailFragment : Fragment() {
 
     }
 
+    private fun save() {
+        contactDetailViewModel.saveContact()
+        requireActivity().supportFragmentManager.popBackStack()
+        Toast.makeText(requireActivity(), "Data Saved", Toast.LENGTH_SHORT).show()
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -272,6 +341,7 @@ class ContactDetailFragment : Fragment() {
             if(location != null) {
                 mapView.visibility = VISIBLE
                 setLocation.text = "Edit Location"
+                fillerView.visibility = GONE
                 val mapFragment = childFragmentManager.findFragmentById(R.id.map_view) as SupportMapFragment?
                 mapFragment?.getMapAsync { googleMap ->
                     googleMap.clear()
@@ -297,6 +367,8 @@ class ContactDetailFragment : Fragment() {
             }
             else {
                 mapView.visibility = GONE
+                fillerView.visibility = VISIBLE
+                setLocation.text = "Set Location"
             }
 
         }
@@ -365,6 +437,11 @@ class ContactDetailFragment : Fragment() {
         matrix.postRotate(angle)
         return Bitmap.createBitmap(source, 0, 0, source.width, source.height,
             matrix, true)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Toast.makeText(requireActivity(), "Data Saved", Toast.LENGTH_SHORT).show()
     }
 
 }

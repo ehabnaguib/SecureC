@@ -75,43 +75,6 @@
         android:visibility="gone"/>
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_weight="1"
-        android:visibility="gone">
-        <Button
-            android:id="@+id/save_button"
-            android:layout_marginTop="32dp"
-            android:textSize="20dp"
-            android:text="SAVE"
-            android:background="@drawable/rounded_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/call_button"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/rounded_button_green"
-            android:textColor="@color/white"
-            android:textSize="20dp"
-            android:text="CALL"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/map_button"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/rounded_button"
-            android:textColor="@color/white"
-            android:textSize="20dp"
-            android:text="MAP"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/set_location"
         android:layout_marginTop="16dp"
@@ -120,19 +83,29 @@
         android:textColor="@color/white"
         android:text="SET LOCATION"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+
+        android:layout_height="wrap_content" />
+
+<View
+    android:id="@+id/filler_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"/>
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/delete_button"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/rounded_button_red"
+        android:id="@+id/save_button"
+        android:layout_marginTop="32dp"
         android:textSize="20dp"
+        android:text="SAVE"
         android:textColor="@color/white"
-        android:text="DELETE"
+        android:background="@drawable/rounded_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"/>
+
+        android:layout_gravity="bottom"
+        />
+
+
 
 
 
