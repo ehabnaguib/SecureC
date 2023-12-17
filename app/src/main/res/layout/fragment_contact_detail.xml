@@ -8,89 +8,96 @@
     android:orientation="vertical"
     tools:context=".ContactDetailFragment">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:id="@+id/contact_photo"
-        android:layout_gravity="center"
-        android:foreground="@drawable/image_person_24"/>
-
-    <androidx.cardview.widget.CardView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginTop="5dp"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="4dp">
+        android:layout_weight="1">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:id="@+id/contact_photo"
+            android:layout_gravity="center"
+            android:foreground="@drawable/image_person_24"/>
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
+        <androidx.cardview.widget.CardView
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="16dp"
-            android:orientation="vertical"
-            tools:context=".ContactDetailFragment">
-            <TextView
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceHeadline6"
-                android:text="Contact Name" />
+                android:layout_height="match_parent"
+                android:layout_margin="16dp"
+                android:orientation="vertical"
+                tools:context=".ContactDetailFragment">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceHeadline6"
+                    android:text="Contact Name" />
 
-            <EditText
-                android:id="@+id/contact_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:importantForAutofill="no"
-                android:hint="Enter contact name here"
-                android:inputType="textCapWords" />
+                <EditText
+                    android:id="@+id/contact_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:importantForAutofill="no"
+                    android:hint="Enter contact name here"
+                    android:inputType="textCapWords" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceHeadline6"
-                android:layout_marginTop="16dp"
-                android:text="Phone Number" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceHeadline6"
+                    android:layout_marginTop="16dp"
+                    android:text="Phone Number" />
 
-            <EditText
-                android:id="@+id/contact_number"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:importantForAutofill="no"
-                android:hint="Enter phone number here"
-                android:inputType="phone" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+                <EditText
+                    android:id="@+id/contact_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:importantForAutofill="no"
+                    android:hint="Enter phone number here"
+                    android:inputType="phone" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/map_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_margin="8dp"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:visibility="gone"/>
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map_view"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:foreground="@drawable/border_black"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:visibility="gone"/>
 
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/set_location"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/rounded_button"
-        android:textSize="20dp"
-        android:textColor="@color/white"
-        android:text="SET LOCATION"
-        android:layout_width="match_parent"
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/set_location"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/rounded_button_blue"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:text="SET LOCATION"
+            android:layout_width="match_parent"
+            android:layout_height="32dp" />
 
-        android:layout_height="wrap_content" />
 
-<View
-    android:id="@+id/filler_view"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_weight="1"/>
+
+    </LinearLayout>
+    </ScrollView>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/save_button"
@@ -98,7 +105,7 @@
         android:textSize="20dp"
         android:text="SAVE"
         android:textColor="@color/white"
-        android:background="@drawable/rounded_button"
+        android:background="@drawable/rounded_button_dark_blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 

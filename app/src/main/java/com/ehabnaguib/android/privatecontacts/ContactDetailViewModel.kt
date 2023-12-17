@@ -19,14 +19,14 @@ class ContactDetailViewModel (contactId : UUID) : ViewModel() {
     private val _contact: MutableStateFlow<Contact?> = MutableStateFlow(null)
     val contact: StateFlow<Contact?> = _contact.asStateFlow()
 
-
+    private lateinit var initialContact : Contact
 
     init {
         viewModelScope.launch {
-            _contact.value = contactRepository.getContact(contactId)
+            initialContact = contactRepository.getContact(contactId)
+            _contact.value = initialContact
         }
     }
-
 
 
 
@@ -61,7 +61,17 @@ class ContactDetailViewModel (contactId : UUID) : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        saveContact()
+        //saveContact()
+    }
+
+    fun isContactChanged() : Boolean {
+        return contact.value != initialContact
+    }
+
+    fun isContactBlank() :Boolean {
+        return contact.value?.let { contact ->
+            contact.name.isBlank() && contact.number.isBlank()
+        } ?: false
     }
 
     fun getLocation(): LatLng? {

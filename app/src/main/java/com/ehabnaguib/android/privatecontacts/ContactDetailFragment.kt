@@ -101,41 +101,46 @@ class ContactDetailFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-//        val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
-//            override fun handleOnBackPressed() {
-//
-//                val builder = AlertDialog.Builder(requireActivity())
-//                builder.setTitle("Save Changes")
-//                builder.setMessage("Do you want to save the changes?")
-//                builder.setPositiveButton("Yes") { dialog, which ->
-//                    save()
-//                }
-//                builder.setNegativeButton("No") { dialog, which ->
-//                    dialog.dismiss()
-//                    // Handle the "No" case by closing the activity or whatever is appropriate for your app
-//                    requireActivity().finish()
-//                }
-//                builder.setNeutralButton("Cancel"){ dialog, which ->
-//
-//                }
-//                builder.setCancelable(false)
-//                builder.show()
-//                // Handle the back press here
-//                // e.g., pop the fragment from the stack, close an opened menu, etc.
-//                // If you want to propagate the back press event to the hosting activity, call remove()
-//                if (shouldInterceptBackPress()) {
-//                    // Intercepted the back press
-//                } else {
-//                    // If you want the default back press behavior to occur (e.g., back navigation),
-//                    // then call this:
-//                    isEnabled = false
-//                    requireActivity().onBackPressed()
-//                }
-//            }
-//        }
-//
-//        // Note that you need to remove the callback when the Fragment is destroyed
-//        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+        val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (contactDetailViewModel.isContactChanged()) {
+                    val builder = AlertDialog.Builder(requireActivity())
+                    builder.setTitle("Save Changes")
+                    builder.setMessage("Do you want to save the changes?")
+                    builder.setPositiveButton("Yes") { dialog, which ->
+                        save()
+                    }
+                    builder.setNegativeButton("No") { dialog, which ->
+                        dialog.dismiss()
+                        // Handle the "No" case by closing the activity or whatever is appropriate for your app
+                        requireActivity().supportFragmentManager.popBackStack()
+                    }
+                    builder.setNeutralButton("Cancel") { dialog, which ->
+
+                    }
+                    builder.setCancelable(false)
+                    builder.show()
+                    // Handle the back press here
+                    // e.g., pop the fragment from the stack, close an opened menu, etc.
+                    // If you want to propagate the back press event to the hosting activity, call remove()
+                    if (shouldInterceptBackPress()) {
+                        // Intercepted the back press
+                    } else {
+                        // If you want the default back press behavior to occur (e.g., back navigation),
+                        // then call this:
+                        isEnabled = false
+                        requireActivity().onBackPressed()
+                    }
+                }
+                else if (contactDetailViewModel.isContactBlank())
+                    save()
+                else
+                    requireActivity().supportFragmentManager.popBackStack()
+            }
+        }
+
+        // Note that you need to remove the callback when the Fragment is destroyed
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
     }
 
     private fun shouldInterceptBackPress(): Boolean {
@@ -152,12 +157,23 @@ class ContactDetailFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.delete_button -> {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    contactDetailViewModel.deleteContact()
-                    deletePhotoFile(requireActivity())
-                    Toast.makeText(requireActivity(), "Deleted", Toast.LENGTH_SHORT).show()
-                    requireActivity().supportFragmentManager.popBackStack()
+                val builder = AlertDialog.Builder(requireActivity())
+                builder.setTitle("Delete Contact")
+                builder.setMessage("Are you sure you want to Delete this contact?")
+                builder.setPositiveButton("Yes") { dialog, which ->
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        contactDetailViewModel.deleteContact()
+                        deletePhotoFile(requireActivity())
+                        Toast.makeText(requireActivity(), "Deleted", Toast.LENGTH_SHORT).show()
+                        requireActivity().supportFragmentManager.popBackStack()
+                    }
                 }
+                builder.setNegativeButton("No") { dialog, which ->
+                    dialog.dismiss()
+                }
+                builder.setCancelable(false)
+                builder.show()
+
                 return true
             }
             R.id.call_button -> {
@@ -302,7 +318,8 @@ class ContactDetailFragment : Fragment() {
     private fun save() {
         contactDetailViewModel.saveContact()
         requireActivity().supportFragmentManager.popBackStack()
-        Toast.makeText(requireActivity(), "Data Saved", Toast.LENGTH_SHORT).show()
+        if (contactDetailViewModel.isContactChanged())
+            Toast.makeText(requireActivity(), "Data Saved", Toast.LENGTH_SHORT).show()
     }
 
 
@@ -341,7 +358,7 @@ class ContactDetailFragment : Fragment() {
             if(location != null) {
                 mapView.visibility = VISIBLE
                 setLocation.text = "Edit Location"
-                fillerView.visibility = GONE
+                //fillerView.visibility = GONE
                 val mapFragment = childFragmentManager.findFragmentById(R.id.map_view) as SupportMapFragment?
                 mapFragment?.getMapAsync { googleMap ->
                     googleMap.clear()
@@ -367,7 +384,7 @@ class ContactDetailFragment : Fragment() {
             }
             else {
                 mapView.visibility = GONE
-                fillerView.visibility = VISIBLE
+                //fillerView.visibility = VISIBLE
                 setLocation.text = "Set Location"
             }
 
@@ -441,7 +458,7 @@ class ContactDetailFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Toast.makeText(requireActivity(), "Data Saved", Toast.LENGTH_SHORT).show()
+
     }
 
 }

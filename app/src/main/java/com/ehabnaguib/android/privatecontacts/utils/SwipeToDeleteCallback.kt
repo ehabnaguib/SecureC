@@ -14,7 +14,7 @@ import com.ehabnaguib.android.privatecontacts.R
 
 abstract class SwipeToDeleteCallback(context: Context) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
 
-    private val deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_call_black_24)
+    private val deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_call_white_24)
     private val intrinsicWidth = deleteIcon?.intrinsicWidth
     private val intrinsicHeight = deleteIcon?.intrinsicHeight
     private val background = ColorDrawable()

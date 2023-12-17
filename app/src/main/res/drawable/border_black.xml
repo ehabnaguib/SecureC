@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@android:color/transparent"/> <!-- Change to your view's background color if needed -->
+    <stroke android:width="2dp" android:color="#000000"/> <!-- This is the black border. Adjust width as needed -->
+    <!-- Optionally, add this if you want rounded corners -->
+    <corners android:radius="4dp"/>
+</shape>
