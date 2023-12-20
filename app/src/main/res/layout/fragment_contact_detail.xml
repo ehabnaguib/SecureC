@@ -88,15 +88,19 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="8dp"
-                android:gravity="center">
+                android:gravity="center"
+                android:layout_gravity="center">
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/set_location"
-                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:layout_marginEnd="16dp"
+                    android:layout_marginStart="5dp"
                     android:padding="8dp"
                     android:background="@drawable/rounded_button_blue"
                     android:text="SET LOCATION"
@@ -107,11 +111,13 @@
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/add_note"
-                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginEnd="8dp"
                     android:padding="8dp"
                     android:background="@drawable/rounded_button_blue"
                     android:text="write note"
