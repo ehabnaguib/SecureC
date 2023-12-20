@@ -114,7 +114,7 @@
                     android:layout_marginEnd="16dp"
                     android:padding="8dp"
                     android:background="@drawable/rounded_button_blue"
-                    android:text="add note"
+                    android:text="write note"
                     android:textColor="@color/white"
                     android:drawableEnd="@drawable/ic_add_note"
                     android:drawablePadding="8dp">
