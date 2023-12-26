@@ -54,7 +54,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Contact Name"
-                        android:textAppearance="?attr/textAppearanceHeadline6" />
+                        android:textAppearance="?attr/textAppearanceHeadline6"
+                        android:textColor="#01579B"
+                       />
 
                     <EditText
                         android:id="@+id/contact_name"
@@ -69,7 +71,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Phone Number"
-                        android:textAppearance="?attr/textAppearanceHeadline6" />
+                        android:textColor="#01579B"
+                        android:textAppearance="?attr/textAppearanceHeadline6"
+                        />
 
                     <EditText
                         android:id="@+id/contact_number"

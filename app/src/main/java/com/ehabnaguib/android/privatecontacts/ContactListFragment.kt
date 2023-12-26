@@ -23,6 +23,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.Fade
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactListBinding
 import com.ehabnaguib.android.privatecontacts.model.Contact
 import com.ehabnaguib.android.privatecontacts.utils.SwipeToDeleteCallback
@@ -54,6 +55,10 @@ class ContactListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        exitTransition = Fade()
+        enterTransition= Fade()
+        reenterTransition = Fade()
+        returnTransition = Fade()
     }
 
     override fun onCreateView(

@@ -36,6 +36,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.transition.Fade
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactDetailBinding
 import com.ehabnaguib.android.privatecontacts.model.Contact
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -100,6 +101,11 @@ class ContactDetailFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        exitTransition = Fade()
+        enterTransition= Fade()
+        reenterTransition = Fade()
+        returnTransition = Fade()
 
         val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
