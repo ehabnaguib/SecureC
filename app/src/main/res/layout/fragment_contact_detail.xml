@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="16dp"
     android:orientation="vertical"
     tools:context=".ContactDetailFragment">
@@ -12,23 +13,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/contact_photo"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
-                android:id="@+id/contact_photo"
                 android:layout_gravity="center"
-                android:foreground="@drawable/image_person_24"/>
+                android:foreground="@drawable/image_person_24" />
 
             <androidx.cardview.widget.CardView
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
-                android:layout_marginTop="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="5dp"
                 app:cardCornerRadius="8dp"
                 app:cardElevation="4dp">
 
@@ -39,95 +42,93 @@
                     android:layout_margin="16dp"
                     android:orientation="vertical"
                     tools:context=".ContactDetailFragment">
+
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textAppearance="?attr/textAppearanceHeadline6"
-                        android:text="Contact Name" />
+                        android:text="Contact Name"
+                        android:textAppearance="?attr/textAppearanceHeadline6" />
 
                     <EditText
                         android:id="@+id/contact_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:importantForAutofill="no"
                         android:hint="Enter contact name here"
+                        android:importantForAutofill="no"
                         android:inputType="textCapWords" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textAppearance="?attr/textAppearanceHeadline6"
                         android:layout_marginTop="16dp"
-                        android:text="Phone Number" />
+                        android:text="Phone Number"
+                        android:textAppearance="?attr/textAppearanceHeadline6" />
 
                     <EditText
                         android:id="@+id/contact_number"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:importantForAutofill="no"
                         android:hint="Enter phone number here"
+                        android:importantForAutofill="no"
                         android:inputType="phone" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/map_view"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
                 android:layout_width="match_parent"
                 android:layout_height="160dp"
-                android:foreground="@drawable/border_black"
-                android:layout_weight="1"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
                 android:layout_marginTop="16dp"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
-                android:visibility="gone"/>
+                android:layout_marginEnd="16dp"
+                android:layout_weight="1"
+                android:foreground="@drawable/border_black"
+                android:visibility="gone" />
 
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:layout_gravity="center"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
-                android:layout_gravity="center">
+                android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/set_location"
-                    android:layout_gravity="center"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_gravity="center"
                     android:layout_marginStart="5dp"
-                    android:padding="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_weight="1"
                     android:background="@drawable/rounded_button_blue"
-                    android:text="SET LOCATION"
-                    android:textColor="@color/white"
                     android:drawableEnd="@drawable/ic_maps"
-                    android:drawablePadding="8dp">
-                </androidx.appcompat.widget.AppCompatButton>
+                    android:drawablePadding="8dp"
+                    android:padding="8dp"
+                    android:text="SET LOCATION"
+                    android:textColor="@color/white" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/add_note"
-                    android:layout_gravity="center"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
                     android:layout_marginEnd="8dp"
-                    android:padding="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_weight="1"
                     android:background="@drawable/rounded_button_blue"
-                    android:text="write note"
-                    android:textColor="@color/white"
                     android:drawableEnd="@drawable/ic_add_note"
-                    android:drawablePadding="8dp">
-                </androidx.appcompat.widget.AppCompatButton>
+                    android:drawablePadding="8dp"
+                    android:padding="8dp"
+                    android:text="write note"
+                    android:textColor="@color/white" />
 
             </LinearLayout>
-
 
 
         </LinearLayout>
@@ -135,19 +136,14 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/save_button"
-        android:layout_marginTop="32dp"
-        android:textSize="20dp"
-        android:text="SAVE"
-        android:textColor="@color/white"
-        android:background="@drawable/rounded_button_dark_blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:layout_gravity="bottom"
-        />
-
-
-
+        android:layout_marginTop="32dp"
+        android:background="@drawable/rounded_button_dark_blue"
+        android:text="SAVE"
+        android:textColor="@color/white"
+        android:textSize="20dp" />
 
 
 </LinearLayout>
