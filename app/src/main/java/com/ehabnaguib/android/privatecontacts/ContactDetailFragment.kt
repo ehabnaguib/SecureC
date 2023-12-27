@@ -363,7 +363,7 @@ class ContactDetailFragment : Fragment() {
 
             if(location != null) {
                 mapView.visibility = VISIBLE
-                setLocation.text = "Edit Location"
+                setLocation.text = "Edit Google Maps Location"
                 //fillerView.visibility = GONE
                 val mapFragment = childFragmentManager.findFragmentById(R.id.map_view) as SupportMapFragment?
                 mapFragment?.getMapAsync { googleMap ->
@@ -391,7 +391,7 @@ class ContactDetailFragment : Fragment() {
             else {
                 mapView.visibility = GONE
                 //fillerView.visibility = VISIBLE
-                setLocation.text = "Set Location"
+                setLocation.text = "Set google maps location"
             }
 
         }
