@@ -56,6 +56,7 @@ dependencies {
     implementation("com.google.android.libraries.places:places:3.3.0")
     implementation("androidx.biometric:biometric:1.2.0-alpha05")
     implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.39")
     kapt("androidx.room:room-compiler:2.6.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

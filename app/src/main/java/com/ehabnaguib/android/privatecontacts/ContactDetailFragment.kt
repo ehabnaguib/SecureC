@@ -12,6 +12,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -43,10 +44,13 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.i18n.phonenumbers.PhoneNumberUtil
+import com.google.i18n.phonenumbers.Phonenumber
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
+import java.util.Locale
 import java.util.UUID
 
 private const val TAG = "ContactDetailFragment"
@@ -209,6 +213,10 @@ class ContactDetailFragment : Fragment() {
                 }
                 return true
             }
+            R.id.whatsapp_button -> {
+                whatsapp()
+                return true
+            }
             else -> return super.onOptionsItemSelected(item)
         }
     }
@@ -238,6 +246,12 @@ class ContactDetailFragment : Fragment() {
             contactNumber.doOnTextChanged { text, _, _, _ ->
                 contactDetailViewModel.updateContact { oldContact ->
                     oldContact.copy(number = text.toString())
+                }
+            }
+
+            contactNotes.doOnTextChanged { text, _, _, _ ->
+                contactDetailViewModel.updateContact { oldContact ->
+                    oldContact.copy(notes = text.toString())
                 }
             }
 
@@ -305,9 +319,6 @@ class ContactDetailFragment : Fragment() {
                     }
                 }
             }
-
-
-
         }
 
         setFragmentResultListener(
@@ -351,6 +362,10 @@ class ContactDetailFragment : Fragment() {
 
                     contactPhoto.setImageBitmap(bitmap)
                 }
+            }
+
+            if (contact.notes.isNotBlank()){
+                binding.contactNotes.setText(contact.notes)
             }
 
             setLocation.setOnClickListener {
@@ -401,6 +416,44 @@ class ContactDetailFragment : Fragment() {
         val callIntent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number"))
         startActivity(callIntent)
     }
+
+    private fun whatsapp () {
+        val context = requireActivity()
+        val number = binding.contactNumber.text.toString()
+        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        val defaultCountryCode = telephonyManager.simCountryIso.toUpperCase(Locale.US)
+        val formattedNumber = formatPhoneNumberWithDefaultCountryCode(number, defaultCountryCode)
+
+        formattedNumber?.let {
+            val uri = Uri.parse("https://wa.me/$it")
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+
+            try {
+                context.startActivity(intent)
+            } catch (e: Exception) {
+                Toast.makeText(context, "WhatsApp is not installed on your device.", Toast.LENGTH_SHORT).show()
+            }
+        } ?: run {
+            Toast.makeText(context, "Invalid phone number.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    fun formatPhoneNumberWithDefaultCountryCode(phoneNumber: String, defaultCountryCode: String): String? {
+        val phoneUtil = PhoneNumberUtil.getInstance()
+        try {
+            // Parse the phone number
+            val numberProto: Phonenumber.PhoneNumber = phoneUtil.parse(phoneNumber, defaultCountryCode)
+
+            // Format the phone number to E.164 format (international format)
+            return phoneUtil.format(numberProto, PhoneNumberUtil.PhoneNumberFormat.E164).removePrefix("+")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null // Return null or handle the error as you prefer
+        }
+    }
+
+
 
     private fun downscaleImageAndSave(context: Context, imageUri: Uri, photoName: String) {
 

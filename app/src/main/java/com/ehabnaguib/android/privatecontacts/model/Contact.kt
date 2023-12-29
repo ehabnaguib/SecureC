@@ -12,5 +12,6 @@ data class Contact(
     val number : String = "",
     val description : String = "",
     val photo : String = "",
-    val location : LatLng? = null
+    val location : LatLng? = null,
+    val notes : String = ""
 )

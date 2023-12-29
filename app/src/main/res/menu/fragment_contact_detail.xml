@@ -4,14 +4,20 @@
 
     <item
         android:id="@+id/delete_button"
-        android:icon="@drawable/ic_delete_black_24"
+        android:icon="@drawable/ic_delete_red_24"
         android:title="Delete Contact"
-        app:showAsAction="ifRoom|withText"/>
+        app:showAsAction="ifRoom|withText" />
 
     <item
         android:id="@+id/call_button"
-        android:icon="@drawable/ic_call_black_24"
-        android:title="Delete Contact"
-        app:showAsAction="ifRoom|withText"/>
+        android:icon="@drawable/ic_call_green_24"
+        android:title="Call Contact"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/whatsapp_button"
+        android:icon="@drawable/ic_whatsapp"
+        android:title="Whatsapp Chat"
+        app:showAsAction="ifRoom|withText" />
 
 </menu>

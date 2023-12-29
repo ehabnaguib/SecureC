@@ -123,7 +123,7 @@
                 map:liteMode="true" />
 
             <com.ehabnaguib.android.privatecontacts.CustomEditText
-                android:id="@+id/notes"
+                android:id="@+id/contact_notes"
                 android:layout_width="0dp"
                 android:layout_height="200dp"
                 android:background="@color/quantum_yellow50"
