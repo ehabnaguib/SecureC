@@ -364,8 +364,8 @@ class ContactDetailFragment : Fragment() {
                 }
             }
 
-            if (contact.notes.isNotBlank()){
-                binding.contactNotes.setText(contact.notes)
+            if (contactNotes.text.toString() != contact.notes){
+                contactNotes.setText(contact.notes)
             }
 
             setLocation.setOnClickListener {
