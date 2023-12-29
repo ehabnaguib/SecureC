@@ -3,6 +3,7 @@ package com.ehabnaguib.android.privatecontacts
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ehabnaguib.android.privatecontacts.database.ContactRepository
 import com.ehabnaguib.android.privatecontacts.model.Contact
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

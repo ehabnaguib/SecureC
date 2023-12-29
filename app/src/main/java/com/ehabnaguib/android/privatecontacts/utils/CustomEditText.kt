@@ -1,4 +1,4 @@
-package com.ehabnaguib.android.privatecontacts
+package com.ehabnaguib.android.privatecontacts.utils
 
 import android.content.Context
 import android.text.method.ScrollingMovementMethod
@@ -7,7 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.EditText
 
-class CustomEditText(context: Context, attrs: AttributeSet) : EditText(context, attrs) {
+class CustomEditText(context: Context, attrs: AttributeSet) : androidx.appcompat.widget.AppCompatEditText(context, attrs) {
 
     val scrollableHeight: Int = this.getHeight()
     var contentHeight: Int = 0

@@ -1,8 +1,7 @@
-package com.ehabnaguib.android.privatecontacts
+package com.ehabnaguib.android.privatecontacts.database
 
 import android.content.Context
 import androidx.room.Room
-import com.ehabnaguib.android.privatecontacts.database.ContactDatabase
 import com.ehabnaguib.android.privatecontacts.model.Contact
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
@@ -13,14 +12,15 @@ import java.util.UUID
 private const val DATABASE_NAME ="crime-database"
 
 class ContactRepository private constructor (context : Context) {
-    val coroutineScope : CoroutineScope = GlobalScope
+    private val coroutineScope : CoroutineScope = GlobalScope
 
     private val contactDatabase : ContactDatabase =
         Room.databaseBuilder(
             context.applicationContext,
             ContactDatabase::class.java,
-            DATABASE_NAME)
-            .build()
+            DATABASE_NAME
+        ).build()
+
 
 
     fun getContacts() : Flow<List<Contact>> = contactDatabase.contactDao().getContacts()
@@ -32,7 +32,6 @@ class ContactRepository private constructor (context : Context) {
     fun updateContact(contact : Contact) {
         coroutineScope.launch {
             contactDatabase.contactDao().updateContact(contact)}
-
     }
 
     fun deleteContact (contact : Contact) {
@@ -41,19 +40,20 @@ class ContactRepository private constructor (context : Context) {
         }
     }
 
-companion object {
-    private var INSTANCE: ContactRepository? = null
 
-    fun initialize(context: Context) {
-        if (INSTANCE == null) {
-            INSTANCE = ContactRepository(context)
+
+    companion object {
+        private var INSTANCE: ContactRepository? = null
+
+        fun initialize(context: Context) {
+            if (INSTANCE == null) {
+                INSTANCE = ContactRepository(context)
+            }
+        }
+
+        fun get(): ContactRepository {
+            return INSTANCE
+                ?: throw IllegalStateException("Contact repository must be initialized.")
         }
     }
-
-    fun get(): ContactRepository {
-        return INSTANCE
-            ?: throw IllegalStateException("Contact Repository must be initialized")
-    }
-}
-
 }

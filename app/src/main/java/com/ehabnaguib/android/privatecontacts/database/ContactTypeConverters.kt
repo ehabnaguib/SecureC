@@ -7,17 +7,16 @@ import java.util.Date
 class ContactTypeConverters {
     @TypeConverter
     fun fromLatLng(location: LatLng?): String? {
-        if (location != null)
-            return "${location.latitude},${location.longitude}"
-        else return null
+        return if (location != null)
+            "${location.latitude},${location.longitude}"
+        else null
     }
 
     @TypeConverter
     fun toLatLng(locationString : String?): LatLng? {
-        if (locationString != null){
+        return if (locationString != null){
             val pieces = locationString.split(",")
-            return LatLng(pieces[0].toDouble(), pieces[1].toDouble())
-        }
-        else return null
+            LatLng(pieces[0].toDouble(), pieces[1].toDouble())
+        } else null
     }
 }
