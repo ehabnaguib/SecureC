@@ -13,9 +13,6 @@
         <action
             android:id="@+id/open_contact_detail"
             app:destination="@id/contactDetailFragment" />
-        <action
-            android:id="@+id/action_contactListFragment_to_blankFragment"
-            app:destination="@id/blankFragment" />
     </fragment>
     <fragment
         android:id="@+id/contactDetailFragment"
@@ -49,9 +46,4 @@
             android:id="@+id/open_contact_list"
             app:destination="@id/contactListFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/blankFragment"
-        android:name="com.ehabnaguib.android.privatecontacts.BlankFragment"
-        android:label="fragment_blank"
-        tools:layout="@layout/fragment_blank" />
 </navigation>

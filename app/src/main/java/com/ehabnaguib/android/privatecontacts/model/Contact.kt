@@ -10,7 +10,6 @@ data class Contact(
     @PrimaryKey val id : UUID,
     val name : String,
     val number : String = "",
-    val description : String = "",
     val photo : String = "",
     val location : LatLng? = null,
     val notes : String = ""

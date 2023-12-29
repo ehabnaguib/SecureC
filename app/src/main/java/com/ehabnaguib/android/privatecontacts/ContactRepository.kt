@@ -3,8 +3,6 @@ package com.ehabnaguib.android.privatecontacts
 import android.content.Context
 import androidx.room.Room
 import com.ehabnaguib.android.privatecontacts.database.ContactDatabase
-import com.ehabnaguib.android.privatecontacts.database.migration_1_2
-import com.ehabnaguib.android.privatecontacts.database.migration_2_3
 import com.ehabnaguib.android.privatecontacts.model.Contact
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
@@ -22,8 +20,6 @@ class ContactRepository private constructor (context : Context) {
             context.applicationContext,
             ContactDatabase::class.java,
             DATABASE_NAME)
-            .addMigrations(migration_1_2)
-            .addMigrations(migration_2_3)
             .build()
 
 
