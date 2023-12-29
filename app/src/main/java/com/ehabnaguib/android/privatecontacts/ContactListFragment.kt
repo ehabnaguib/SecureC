@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -13,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
@@ -27,6 +29,7 @@ import androidx.transition.Fade
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactListBinding
 import com.ehabnaguib.android.privatecontacts.model.Contact
 import com.ehabnaguib.android.privatecontacts.utils.SwipeToDeleteCallback
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -41,6 +44,8 @@ class ContactListFragment : Fragment() {
         }
 
     private val contactListViewModel: ContactListViewModel by viewModels()
+
+    private var searchView : SearchView? = null
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -108,9 +113,59 @@ class ContactListFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_contact_list, menu)
+
+        val searchItem: MenuItem = menu.findItem(R.id.search_contacts)
+        searchView = searchItem.actionView as? SearchView
+
+        var allContacts: List<Contact>? = null
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                contactListViewModel.contacts.collect { contacts ->
+                    allContacts = contacts
+                }
+            }
+        }
+
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (allContacts != null && newText !=null) {
+                    if(newText.isEmpty() && allContacts !=null)
+                        binding.contactRecyclerView.adapter =
+                            ContactListAdapter(requireActivity(), allContacts!!) { contactId ->
+                                findNavController().navigate(
+                                    ContactListFragmentDirections.openContactDetail(contactId)
+                                )
+                            }
+                    else{
+                        val searchContacts = allContacts!!.filter { contact ->
+                            contact.name.contains(newText, ignoreCase = true)
+                        } .sortedWith(compareBy(
+                            { !it.name.startsWith(newText, ignoreCase = true) },
+                            { it.name }
+                        ))
+                        binding.contactRecyclerView.adapter =
+                            ContactListAdapter(requireActivity(), searchContacts) { contactId ->
+                                findNavController().navigate(
+                                    ContactListFragmentDirections.openContactDetail(contactId)
+                                )
+                            }
+                    }
+                }
+
+                return true
+            }
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+
+
         return when (item.itemId) {
             R.id.new_contact -> {
                 val newContact : Contact = Contact(id = UUID.randomUUID(), name = "")
@@ -121,6 +176,11 @@ class ContactListFragment : Fragment() {
                     )
                 }
                 true
+            }
+            R.id.search_contacts -> {
+
+
+                return true
             }
             else -> super.onOptionsItemSelected(item)
         }
