@@ -1,6 +1,6 @@
 package com.ehabnaguib.android.privatecontacts
 
-import android.content.Context
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ehabnaguib.android.privatecontacts.database.ContactRepository
@@ -27,13 +27,5 @@ class ContactListViewModel : ViewModel() {
 
     suspend fun addContact(contact: Contact) {
         contactRepository.addContact(contact)
-    }
-
-
-    fun getNumber(context : Context, position : Int) : String
-    {
-        val contacts = contacts.value
-        return contacts[position].number
-
     }
 }

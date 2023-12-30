@@ -4,7 +4,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -29,13 +28,11 @@ import androidx.transition.Fade
 import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactListBinding
 import com.ehabnaguib.android.privatecontacts.model.Contact
 import com.ehabnaguib.android.privatecontacts.utils.SwipeToDeleteCallback
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 
 class ContactListFragment : Fragment() {
-
 
     private var _binding : FragmentContactListBinding? = null
     private val binding : FragmentContactListBinding
@@ -45,17 +42,20 @@ class ContactListFragment : Fragment() {
 
     private val contactListViewModel: ContactListViewModel by viewModels()
 
-    private var searchView : SearchView? = null
+    private var searchResult : List<Contact>? = null
 
-    private val requestPermissionLauncher = registerForActivityResult(
+    private val requestCallPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            Toast.makeText(requireActivity(), "You can now make phone calls.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "You can now make phone calls.", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(requireActivity(), "Allow permission from the settings.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "You need to allow call permission from your phone settings.", Toast.LENGTH_SHORT).show()
         }
     }
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,42 +72,39 @@ class ContactListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentContactListBinding.inflate(inflater, container, false)
-        binding.contactRecyclerView.layoutManager = LinearLayoutManager(context)
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.contactRecyclerView.layoutManager = LinearLayoutManager(context)
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 contactListViewModel.contacts.collect { contacts ->
                     binding.contactRecyclerView.adapter =
-                        ContactListAdapter(requireActivity(), contacts) { contactId ->
+                        ContactListAdapter(requireContext(), contacts) { contactId ->
                             findNavController().navigate(
                                 ContactListFragmentDirections.openContactDetail(contactId)
                             )
                         }
+                    searchResult = contacts
                 }
             }
         }
-        val swipeHandler = object : SwipeToDeleteCallback(requireActivity()) {
+
+        //Adding the swipe-to-call functionality to the contact list
+        val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 binding.contactRecyclerView.removeViewAt(viewHolder.adapterPosition)
-                val number = contactListViewModel.getNumber(requireActivity(), viewHolder.adapterPosition)
-                callNumber(number)
+
+                if (searchResult != null)
+                    callNumber(searchResult!![viewHolder.adapterPosition].number)
             }
         }
-
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(binding.contactRecyclerView)
-
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -115,17 +112,7 @@ class ContactListFragment : Fragment() {
         inflater.inflate(R.menu.fragment_contact_list, menu)
 
         val searchItem: MenuItem = menu.findItem(R.id.search_contacts)
-        searchView = searchItem.actionView as? SearchView
-
-        var allContacts: List<Contact>? = null
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                contactListViewModel.contacts.collect { contacts ->
-                    allContacts = contacts
-                }
-            }
-        }
+        val searchView = searchItem.actionView as? SearchView
 
         searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -133,42 +120,38 @@ class ContactListFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (allContacts != null && newText !=null) {
-                    if(newText.isEmpty() && allContacts !=null)
+                if (searchResult != null && newText !=null) {
+                    if(newText.isEmpty())
                         binding.contactRecyclerView.adapter =
-                            ContactListAdapter(requireActivity(), allContacts!!) { contactId ->
+                            ContactListAdapter(requireContext(), searchResult!!) { contactId ->
                                 findNavController().navigate(
                                     ContactListFragmentDirections.openContactDetail(contactId)
                                 )
                             }
                     else{
-                        val searchContacts = allContacts!!.filter { contact ->
+                        searchResult = searchResult!!.filter { contact ->
                             contact.name.contains(newText, ignoreCase = true)
                         } .sortedWith(compareBy(
                             { !it.name.startsWith(newText, ignoreCase = true) },
                             { it.name }
                         ))
                         binding.contactRecyclerView.adapter =
-                            ContactListAdapter(requireActivity(), searchContacts) { contactId ->
+                            ContactListAdapter(requireContext(), searchResult!!) { contactId ->
                                 findNavController().navigate(
                                     ContactListFragmentDirections.openContactDetail(contactId)
                                 )
                             }
                     }
                 }
-
                 return true
             }
         })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-
-
         return when (item.itemId) {
             R.id.new_contact -> {
-                val newContact : Contact = Contact(id = UUID.randomUUID(), name = "")
+                val newContact = Contact(id = UUID.randomUUID(), name = "")
                 viewLifecycleOwner.lifecycleScope.launch {
                     contactListViewModel.addContact(newContact)
                     findNavController().navigate(
@@ -177,31 +160,32 @@ class ContactListFragment : Fragment() {
                 }
                 true
             }
-            R.id.search_contacts -> {
-
-
-                return true
-            }
             else -> super.onOptionsItemSelected(item)
         }
     }
-    fun callNumber (number : String){
+
+    private fun callNumber (number : String){
         val callIntent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number"))
 
         when {
-            ContextCompat.checkSelfPermission(requireActivity(),
+            ContextCompat.checkSelfPermission(requireContext(),
                 android.Manifest.permission.CALL_PHONE
             ) == PackageManager.PERMISSION_GRANTED -> {
                 startActivity(callIntent)
             }
             ActivityCompat.shouldShowRequestPermissionRationale(
                 requireActivity(), android.Manifest.permission.CALL_PHONE) -> {
-                Toast.makeText(requireActivity(), "You just denied permission.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "You need to allow call permission from your phone settings.", Toast.LENGTH_SHORT).show()
             }
             else -> {
-                requestPermissionLauncher.launch(
+                requestCallPermissionLauncher.launch(
                     android.Manifest.permission.CALL_PHONE)
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

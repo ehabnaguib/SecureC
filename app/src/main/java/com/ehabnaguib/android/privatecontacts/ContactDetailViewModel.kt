@@ -30,7 +30,6 @@ class ContactDetailViewModel (contactId : UUID) : ViewModel() {
     }
 
 
-
     fun updateContact(onUpdate: (Contact) -> Contact) {
         _contact.update { oldContact ->
             oldContact?.let { onUpdate(it) }
@@ -73,13 +72,6 @@ class ContactDetailViewModel (contactId : UUID) : ViewModel() {
         return contact.value?.let { contact ->
             contact.name.isBlank() && contact.number.isBlank()
         } ?: false
-    }
-
-    fun getLocation(): LatLng? {
-        return if(contact.value != null) {
-            contact.value!!.location
-        } else
-            null
     }
 }
 

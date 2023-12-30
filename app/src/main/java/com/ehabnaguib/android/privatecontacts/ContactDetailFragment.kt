@@ -11,7 +11,6 @@ import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -51,7 +50,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
 import java.util.Locale
-import java.util.UUID
 
 private const val TAG = "ContactDetailFragment"
 
@@ -68,17 +66,21 @@ class ContactDetailFragment : Fragment() {
     private val contactDetailViewModel: ContactDetailViewModel by viewModels {
         ContactDetailViewModelFactory(args.contactId)
     }
-    private var photoName : String? = ""
 
+    private var myContact : Contact? = null
+
+    private var photoName : String? = ""
     private var location : LatLng? = null
 
     private val requestCallPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
-        if (isGranted)
-            call()
-        else
-            Toast.makeText(requireActivity(), "Allow permission from the settings.", Toast.LENGTH_SHORT).show()
+        if (isGranted) {
+            Toast.makeText(requireContext(), "You can now make phone calls.", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(requireContext(),
+                "You need to allow call permission from your phone settings.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private val requestPhotoPermissionLauncher = registerForActivityResult(
@@ -87,7 +89,8 @@ class ContactDetailFragment : Fragment() {
         if (isGranted)
             photoPickerLauncher.launch("image/*")
         else
-            Toast.makeText(requireActivity(), "Allow permission from the settings.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireActivity(),
+                "You need to allow permission to access files from your phone settings.", Toast.LENGTH_SHORT).show()
     }
 
     private val photoPickerLauncher = registerForActivityResult(
@@ -95,10 +98,39 @@ class ContactDetailFragment : Fragment() {
     ) { uri: Uri? ->
         if (uri != null) {
             photoName = "IMG_${Date()}.JPG"
+            deleteOldPhotoFile(requireContext())
             binding.contactPhoto.foreground = null
-            downscaleImageAndSave(requireActivity(), uri, photoName!!)
+            adjustAndSavePhoto(requireContext(), uri, photoName!!)
         } else
             Toast.makeText(requireActivity(), "Cound't get image", Toast.LENGTH_SHORT).show()
+    }
+
+    private val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if (contactDetailViewModel.isContactChanged()) {
+                val builder = AlertDialog.Builder(requireActivity())
+                builder.setTitle("Save Changes")
+                builder.setMessage("Do you want to save the changes?")
+                builder.setPositiveButton("Yes") { _, _ ->
+                    saveContact()
+                }
+                builder.setNegativeButton("No") { dialog, _ ->
+                    dialog.dismiss()
+                    // Handle the "No" case by closing the activity or whatever is appropriate for your app
+                    requireActivity().supportFragmentManager.popBackStack()
+                }
+                builder.setNeutralButton("Cancel") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                builder.setCancelable(false)
+                builder.show()
+
+            }
+            else if (contactDetailViewModel.isContactBlank())
+                saveContact()
+            else
+                requireActivity().supportFragmentManager.popBackStack()
+        }
     }
 
 
@@ -111,52 +143,8 @@ class ContactDetailFragment : Fragment() {
         reenterTransition = Fade()
         returnTransition = Fade()
 
-        val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (contactDetailViewModel.isContactChanged()) {
-                    val builder = AlertDialog.Builder(requireActivity())
-                    builder.setTitle("Save Changes")
-                    builder.setMessage("Do you want to save the changes?")
-                    builder.setPositiveButton("Yes") { dialog, which ->
-                        save()
-                    }
-                    builder.setNegativeButton("No") { dialog, which ->
-                        dialog.dismiss()
-                        // Handle the "No" case by closing the activity or whatever is appropriate for your app
-                        requireActivity().supportFragmentManager.popBackStack()
-                    }
-                    builder.setNeutralButton("Cancel") { dialog, which ->
-
-                    }
-                    builder.setCancelable(false)
-                    builder.show()
-                    // Handle the back press here
-                    // e.g., pop the fragment from the stack, close an opened menu, etc.
-                    // If you want to propagate the back press event to the hosting activity, call remove()
-                    if (shouldInterceptBackPress()) {
-                        // Intercepted the back press
-                    } else {
-                        // If you want the default back press behavior to occur (e.g., back navigation),
-                        // then call this:
-                        isEnabled = false
-                        requireActivity().onBackPressed()
-                    }
-                }
-                else if (contactDetailViewModel.isContactBlank())
-                    save()
-                else
-                    requireActivity().supportFragmentManager.popBackStack()
-            }
-        }
-
         // Note that you need to remove the callback when the Fragment is destroyed
         requireActivity().onBackPressedDispatcher.addCallback(this, callback)
-    }
-
-    private fun shouldInterceptBackPress(): Boolean {
-        // Your logic to determine if the back press should be intercepted
-        // Return true to intercept, false to continue with the regular back press handling
-        return true // or false based on your condition
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -167,60 +155,21 @@ class ContactDetailFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.delete_button -> {
-                val builder = AlertDialog.Builder(requireActivity())
-                builder.setTitle("Delete Contact")
-                builder.setMessage("Are you sure you want to Delete this contact?")
-                builder.setPositiveButton("Yes") { dialog, which ->
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        contactDetailViewModel.deleteContact()
-                        deletePhotoFile(requireActivity())
-                        Toast.makeText(requireActivity(), "Deleted", Toast.LENGTH_SHORT).show()
-                        requireActivity().supportFragmentManager.popBackStack()
-                    }
-                }
-                builder.setNegativeButton("No") { dialog, which ->
-                    dialog.dismiss()
-                }
-                builder.setCancelable(false)
-                builder.show()
+                deleteContact()
 
                 return true
             }
             R.id.call_button -> {
-                when {
-                    ContextCompat.checkSelfPermission(
-                        requireActivity(),
-                        android.Manifest.permission.CALL_PHONE
-                    ) == PackageManager.PERMISSION_GRANTED -> {
-                        call()
-                    }
-
-                    ActivityCompat.shouldShowRequestPermissionRationale(
-                        requireActivity(), android.Manifest.permission.CALL_PHONE
-                    ) -> {
-                        Toast.makeText(
-                            requireActivity(),
-                            "You just denied permission.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-
-                    else -> {
-                        requestCallPermissionLauncher.launch(
-                            android.Manifest.permission.CALL_PHONE
-                        )
-                    }
-                }
+                callNumber(myContact!!.number)
                 return true
             }
             R.id.whatsapp_button -> {
-                whatsapp()
+                sendWhatsapp()
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
         }
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -234,9 +183,17 @@ class ContactDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
         binding.apply {
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    contactDetailViewModel.contact.collect { contact ->
+                        contact?.let { updateUi(it) }
+                        myContact = contact
+                    }
+                }
+            }
+
             contactName.doOnTextChanged { text, _, _, _ ->
                 contactDetailViewModel.updateContact { oldContact ->
                     oldContact.copy(name = text.toString())
@@ -255,16 +212,8 @@ class ContactDetailFragment : Fragment() {
                 }
             }
 
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    contactDetailViewModel.contact.collect { contact ->
-                        contact?.let { updateUi(it) }
-                    }
-                }
-            }
-
             saveButton.setOnClickListener {
-                save()
+                saveContact()
             }
 
 
@@ -332,7 +281,7 @@ class ContactDetailFragment : Fragment() {
 
     }
 
-    private fun save() {
+    private fun saveContact() {
         contactDetailViewModel.saveContact()
         requireActivity().supportFragmentManager.popBackStack()
         if (contactDetailViewModel.isContactChanged())
@@ -379,7 +328,6 @@ class ContactDetailFragment : Fragment() {
             if(location != null) {
                 mapView.visibility = VISIBLE
                 setLocation.text = "Edit Google Maps Location"
-                //fillerView.visibility = GONE
                 val mapFragment = childFragmentManager.findFragmentById(R.id.map_view) as SupportMapFragment?
                 mapFragment?.getMapAsync { googleMap ->
                     googleMap.clear()
@@ -396,7 +344,6 @@ class ContactDetailFragment : Fragment() {
                         val uri = Uri.parse(uriString)
 
                         val mapIntent = Intent(Intent.ACTION_VIEW, uri).apply {
-                            // Ensure the Google Maps app handles the intent
                             `package` = "com.google.android.apps.maps"
                         }
                         startActivity(mapIntent)
@@ -405,19 +352,50 @@ class ContactDetailFragment : Fragment() {
             }
             else {
                 mapView.visibility = GONE
-                //fillerView.visibility = VISIBLE
                 setLocation.text = "Set google maps location"
             }
-
         }
     }
-    private fun call(){
-        val number = binding.contactNumber.text.toString()
+    private fun callNumber (number : String){
         val callIntent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number"))
-        startActivity(callIntent)
+
+        when {
+            ContextCompat.checkSelfPermission(requireContext(),
+                android.Manifest.permission.CALL_PHONE
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                startActivity(callIntent)
+            }
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                requireActivity(), android.Manifest.permission.CALL_PHONE) -> {
+                Toast.makeText(requireContext(), "You need to allow call permission from your phone settings.", Toast.LENGTH_SHORT).show()
+            }
+            else -> {
+                requestCallPermissionLauncher.launch(
+                    android.Manifest.permission.CALL_PHONE)
+            }
+        }
     }
 
-    private fun whatsapp () {
+    private fun deleteContact() {
+        val builder = AlertDialog.Builder(requireActivity())
+        builder.setTitle("Delete Contact")
+        builder.setMessage("Are you sure you want to Delete this contact?")
+        builder.setPositiveButton("Yes") { dialog, which ->
+            viewLifecycleOwner.lifecycleScope.launch {
+                contactDetailViewModel.deleteContact()
+                deleteOldPhotoFile(requireActivity())
+                Toast.makeText(requireActivity(), "Deleted", Toast.LENGTH_SHORT).show()
+                requireActivity().supportFragmentManager.popBackStack()
+            }
+        }
+        builder.setNegativeButton("No") { dialog, which ->
+            dialog.dismiss()
+        }
+        builder.setCancelable(false)
+        builder.show()
+    }
+
+    private fun sendWhatsapp () {
         val context = requireActivity()
         val number = binding.contactNumber.text.toString()
         val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
@@ -431,7 +409,7 @@ class ContactDetailFragment : Fragment() {
             try {
                 context.startActivity(intent)
             } catch (e: Exception) {
-                Toast.makeText(context, "WhatsApp is not installed on your device.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Something went wrong. Make sure WhatsApp is installed.", Toast.LENGTH_SHORT).show()
             }
         } ?: run {
             Toast.makeText(context, "Invalid phone number.", Toast.LENGTH_SHORT).show()
@@ -439,66 +417,72 @@ class ContactDetailFragment : Fragment() {
     }
 
 
-    fun formatPhoneNumberWithDefaultCountryCode(phoneNumber: String, defaultCountryCode: String): String? {
+    private fun formatPhoneNumberWithDefaultCountryCode(phoneNumber: String, defaultCountryCode: String): String? {
         val phoneUtil = PhoneNumberUtil.getInstance()
-        try {
+        return try {
             // Parse the phone number
             val numberProto: Phonenumber.PhoneNumber = phoneUtil.parse(phoneNumber, defaultCountryCode)
 
             // Format the phone number to E.164 format (international format)
-            return phoneUtil.format(numberProto, PhoneNumberUtil.PhoneNumberFormat.E164).removePrefix("+")
+            phoneUtil.format(numberProto, PhoneNumberUtil.PhoneNumberFormat.E164).removePrefix("+")
         } catch (e: Exception) {
             e.printStackTrace()
-            return null // Return null or handle the error as you prefer
+            null
         }
     }
 
 
 
-    private fun downscaleImageAndSave(context: Context, imageUri: Uri, photoName: String) {
+    private fun adjustAndSavePhoto(context: Context, imageUri: Uri, photoName: String) {
 
+        val fixedBitmap = fixPhotoRotation(context, imageUri)
+
+        if (fixedBitmap != null){
+            val file = File(context.filesDir, photoName)
+            val outputStream = FileOutputStream(file)
+            fixedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            outputStream.close()
+
+            contactDetailViewModel.updateContact { oldContact ->
+                oldContact.copy(photo = photoName)
+            }
+        }
+        else
+            Toast.makeText(context, "Something went wrong.", Toast.LENGTH_SHORT).show()
+
+    }
+
+    private fun fixPhotoRotation(context: Context, imageUri: Uri) : Bitmap?{
         val inputStream1 = context.contentResolver.openInputStream(imageUri)
 
         if (inputStream1 == null){
             Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
-            return
+            return null
         }
-        val ei = ExifInterface(inputStream1)
+        val exifInterface = ExifInterface(inputStream1)
         inputStream1.close()
 
-        val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-        Log.d("ContactDetailFragment", orientation.toString())
+        val orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
 
         val inputStream2 = context.contentResolver.openInputStream(imageUri)
         if (inputStream2 == null){
             Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
-            return
+            return null
         }
         val originalBitmap = BitmapFactory.decodeStream(inputStream2)
         inputStream2.close()
 
-        val editedBitmap = when (orientation) {
+        val fixedBitmap = when (orientation) {
             ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(originalBitmap, 90f)
             ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(originalBitmap, 180f)
             ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(originalBitmap, 270f)
             else -> originalBitmap
         }
 
-        deletePhotoFile(context)
-
-        val file = File(context.filesDir, photoName)
-        val outputStream = FileOutputStream(file)
-
-        editedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-
-        contactDetailViewModel.updateContact { oldContact ->
-            oldContact.copy(photo = photoName)
-        }
-
-        outputStream.close()
+        return fixedBitmap
     }
 
-    private fun deletePhotoFile(context: Context) {
+    private fun deleteOldPhotoFile(context: Context) {
         val oldPhotoName: String = contactDetailViewModel.getPhotoName()
         if (oldPhotoName.isNotBlank()) {
             val file = File(context.filesDir, oldPhotoName)
@@ -517,7 +501,6 @@ class ContactDetailFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-
+        callback.remove()
     }
-
 }

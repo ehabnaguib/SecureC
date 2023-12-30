@@ -20,7 +20,6 @@ class ContactHolder(
 
         binding.contactNumber.text = contact.number
 
-
         if(contact.photo.isNotBlank()) {
             val file = File(context.filesDir, contact.photo)
 

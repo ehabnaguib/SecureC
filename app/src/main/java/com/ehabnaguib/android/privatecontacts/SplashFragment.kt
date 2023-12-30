@@ -18,9 +18,6 @@ import java.util.concurrent.Executor
 
 class SplashFragment : Fragment() {
 
-
-
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -89,13 +86,12 @@ class SplashFragment : Fragment() {
                 }
                 builder.setCancelable(false)
                 builder.show()
-
             }
 
             BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED,
             BiometricManager.BIOMETRIC_STATUS_UNKNOWN ->
                 Toast.makeText(requireContext(),
-                    "There's a problem with the security of your hardware. Security update is required.", Toast.LENGTH_SHORT).show()
+                    "There's a problem with the security of your hardware. You might need a security update.", Toast.LENGTH_SHORT).show()
 
             BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED -> {
                 Toast.makeText(requireContext(),
