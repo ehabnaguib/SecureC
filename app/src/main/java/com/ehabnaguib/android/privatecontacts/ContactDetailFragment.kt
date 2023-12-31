@@ -116,7 +116,6 @@ class ContactDetailFragment : Fragment() {
                 }
                 builder.setNegativeButton("No") { dialog, _ ->
                     dialog.dismiss()
-                    // Handle the "No" case by closing the activity or whatever is appropriate for your app
                     requireActivity().supportFragmentManager.popBackStack()
                 }
                 builder.setNeutralButton("Cancel") { dialog, _ ->
@@ -126,8 +125,6 @@ class ContactDetailFragment : Fragment() {
                 builder.show()
 
             }
-            else if (contactDetailViewModel.isContactBlank())
-                saveContact()
             else
                 requireActivity().supportFragmentManager.popBackStack()
         }
@@ -282,10 +279,11 @@ class ContactDetailFragment : Fragment() {
     }
 
     private fun saveContact() {
-        contactDetailViewModel.saveContact()
-        requireActivity().supportFragmentManager.popBackStack()
-        if (contactDetailViewModel.isContactChanged())
+        if (contactDetailViewModel.isContactChanged()) {
+            contactDetailViewModel.saveContact()
             Toast.makeText(requireActivity(), "Data Saved", Toast.LENGTH_SHORT).show()
+        }
+        requireActivity().supportFragmentManager.popBackStack()
     }
 
 
@@ -399,7 +397,7 @@ class ContactDetailFragment : Fragment() {
         val context = requireActivity()
         val number = binding.contactNumber.text.toString()
         val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        val defaultCountryCode = telephonyManager.simCountryIso.toUpperCase(Locale.US)
+        val defaultCountryCode = telephonyManager.simCountryIso.uppercase(Locale.US)
         val formattedNumber = formatPhoneNumberWithDefaultCountryCode(number, defaultCountryCode)
 
         formattedNumber?.let {

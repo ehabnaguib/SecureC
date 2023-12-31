@@ -42,6 +42,7 @@ class ContactListFragment : Fragment() {
 
     private val contactListViewModel: ContactListViewModel by viewModels()
 
+    private var allContacts : List<Contact>? = null
     private var searchResult : List<Contact>? = null
 
     private val requestCallPermissionLauncher = registerForActivityResult(
@@ -89,7 +90,7 @@ class ContactListFragment : Fragment() {
                                 ContactListFragmentDirections.openContactDetail(contactId)
                             )
                         }
-                    searchResult = contacts
+                    allContacts = contacts
                 }
             }
         }
@@ -120,16 +121,16 @@ class ContactListFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (searchResult != null && newText !=null) {
+                if (allContacts != null && newText !=null) {
                     if(newText.isEmpty())
                         binding.contactRecyclerView.adapter =
-                            ContactListAdapter(requireContext(), searchResult!!) { contactId ->
+                            ContactListAdapter(requireContext(), allContacts!!) { contactId ->
                                 findNavController().navigate(
                                     ContactListFragmentDirections.openContactDetail(contactId)
                                 )
                             }
                     else{
-                        searchResult = searchResult!!.filter { contact ->
+                        searchResult = allContacts!!.filter { contact ->
                             contact.name.contains(newText, ignoreCase = true)
                         } .sortedWith(compareBy(
                             { !it.name.startsWith(newText, ignoreCase = true) },
@@ -151,13 +152,9 @@ class ContactListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.new_contact -> {
-                val newContact = Contact(id = UUID.randomUUID(), name = "")
-                viewLifecycleOwner.lifecycleScope.launch {
-                    contactListViewModel.addContact(newContact)
                     findNavController().navigate(
-                        ContactListFragmentDirections.openContactDetail(newContact.id)
+                        ContactListFragmentDirections.openContactDetail(null)
                     )
-                }
                 true
             }
             else -> super.onOptionsItemSelected(item)

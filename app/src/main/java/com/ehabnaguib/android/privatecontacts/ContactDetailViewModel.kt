@@ -12,8 +12,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
+import kotlin.properties.Delegates
 
-class ContactDetailViewModel (contactId : UUID) : ViewModel() {
+class ContactDetailViewModel (contactId : UUID?) : ViewModel() {
 
     private val contactRepository = ContactRepository.get()
 
@@ -21,10 +22,17 @@ class ContactDetailViewModel (contactId : UUID) : ViewModel() {
     val contact: StateFlow<Contact?> = _contact.asStateFlow()
 
     private lateinit var initialContact : Contact
+    private var isNewContact = false
 
     init {
         viewModelScope.launch {
-            initialContact = contactRepository.getContact(contactId)
+            if(contactId == null){
+                initialContact = Contact(id = UUID.randomUUID(), name = "")
+                isNewContact = true
+            }
+            else
+                initialContact = contactRepository.getContact(contactId)
+
             _contact.value = initialContact
         }
     }
@@ -38,10 +46,17 @@ class ContactDetailViewModel (contactId : UUID) : ViewModel() {
 
     fun saveContact() {
         contact.value?.let { contact ->
-            if (contact.name.isBlank() && contact.number.isBlank())
-                contactRepository.deleteContact(contact)
-            else
-                contactRepository.updateContact(contact)}
+            if (isNewContact){
+                if(!isContactBlank(contact)){
+                    viewModelScope.launch {
+                        contactRepository.addContact(contact)
+                    }
+                }
+            }
+            else{
+                contactRepository.updateContact(contact)
+            }
+        }
     }
 
     fun deleteContact() {
@@ -59,26 +74,20 @@ class ContactDetailViewModel (contactId : UUID) : ViewModel() {
         return currentPhotoName
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        //saveContact()
-    }
 
     fun isContactChanged() : Boolean {
         return contact.value != initialContact
     }
 
-    fun isContactBlank() :Boolean {
-        return contact.value?.let { contact ->
-            contact.name.isBlank() && contact.number.isBlank()
-        } ?: false
+    fun isContactBlank(contact: Contact) :Boolean {
+        return (contact.name.isBlank() && contact.number.isBlank())
     }
 }
 
 
 
 class ContactDetailViewModelFactory(
-    private val contactId: UUID
+    private val contactId: UUID?
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return ContactDetailViewModel(contactId) as T
