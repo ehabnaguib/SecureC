@@ -8,7 +8,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.ehabnaguib.android.privatecontacts.model.Contact
 
-@Database(entities = [Contact::class], version = 4)
+@Database(entities = [Contact::class], version = 1)
 @TypeConverters(ContactTypeConverters::class)
 abstract class ContactDatabase : RoomDatabase() {
     abstract fun contactDao() : ContactDao

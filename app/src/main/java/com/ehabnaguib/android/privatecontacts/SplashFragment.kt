@@ -13,6 +13,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
+import com.ehabnaguib.android.privatecontacts.utils.AuthenticationHandler
 import java.util.concurrent.Executor
 
 
@@ -27,6 +28,35 @@ class SplashFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        AuthenticationHandler.startAuthentication(
+            fragment = this,
+            onAuthenticationSuccess = {
+                findNavController().navigate(SplashFragmentDirections.openContactList())
+            },
+            onNoneEnrolled = {
+                // Prompt the user to set up a lock screen and biometric credentials
+                val builder = AlertDialog.Builder(requireContext())
+                builder.setTitle("Setup Lock Screen")
+                builder.setMessage("For your security, you need to set up a lock screen. Would you like to do this now?")
+                builder.setPositiveButton("Yes") { _, _ ->
+                    val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    requireActivity().finishAffinity()
+                }
+                builder.setNegativeButton("No") { dialog, _ ->
+                    dialog.dismiss()
+                    requireActivity().finishAndRemoveTask()
+                }
+                builder.setCancelable(false)
+                builder.show()
+            }
+        )
+
+
+
 
         val executor: Executor
         val biometricPrompt: BiometricPrompt
