@@ -91,6 +91,7 @@ class ContactListFragment : Fragment() {
                             )
                         }
                     allContacts = contacts
+                    searchResult = allContacts
                 }
             }
         }
