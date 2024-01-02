@@ -1,4 +1,4 @@
-package com.ehabnaguib.android.privatecontacts
+package com.ehabnaguib.android.securec
 
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -25,11 +25,10 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Fade
-import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactListBinding
-import com.ehabnaguib.android.privatecontacts.model.Contact
-import com.ehabnaguib.android.privatecontacts.utils.SwipeToDeleteCallback
+import com.ehabnaguib.android.securec.databinding.FragmentContactListBinding
+import com.ehabnaguib.android.securec.model.Contact
+import com.ehabnaguib.android.securec.utils.SwipeToDeleteCallback
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 
 class ContactListFragment : Fragment() {

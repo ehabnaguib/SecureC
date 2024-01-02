@@ -1,4 +1,4 @@
-package com.ehabnaguib.android.privatecontacts
+package com.ehabnaguib.android.securec
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -13,7 +13,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
-import com.ehabnaguib.android.privatecontacts.utils.AuthenticationHandler
+import com.ehabnaguib.android.securec.utils.AuthenticationHandler
 import java.util.concurrent.Executor
 
 

@@ -1,11 +1,10 @@
-package com.ehabnaguib.android.privatecontacts.utils
+package com.ehabnaguib.android.securec.utils
 
 import android.content.Context
 import android.text.method.ScrollingMovementMethod
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import android.widget.EditText
 
 class CustomEditText(context: Context, attrs: AttributeSet) : androidx.appcompat.widget.AppCompatEditText(context, attrs) {
 

@@ -1,7 +1,7 @@
-package com.ehabnaguib.android.privatecontacts
+package com.ehabnaguib.android.securec
 
 import android.app.Application
-import com.ehabnaguib.android.privatecontacts.database.ContactRepository
+import com.ehabnaguib.android.securec.database.ContactRepository
 
 class PrivateContactsApplication : Application() {
     override fun onCreate() {

@@ -1,12 +1,12 @@
-package com.ehabnaguib.android.privatecontacts
+package com.ehabnaguib.android.securec
 
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.ehabnaguib.android.privatecontacts.databinding.ListItemContactBinding
-import com.ehabnaguib.android.privatecontacts.model.Contact
+import com.ehabnaguib.android.securec.databinding.ListItemContactBinding
+import com.ehabnaguib.android.securec.model.Contact
 import java.io.File
 import java.util.UUID
 

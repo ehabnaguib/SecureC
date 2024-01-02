@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.ehabnaguib.android.privatecontacts"
+    namespace = "com.ehabnaguib.android.securec"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.ehabnaguib.android.privatecontacts"
+        applicationId = "com.ehabnaguib.android.securec"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

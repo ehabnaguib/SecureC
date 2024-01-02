@@ -1,4 +1,4 @@
-package com.ehabnaguib.android.privatecontacts.model
+package com.ehabnaguib.android.securec.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

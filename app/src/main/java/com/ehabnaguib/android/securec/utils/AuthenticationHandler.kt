@@ -1,4 +1,4 @@
-package com.ehabnaguib.android.privatecontacts.utils
+package com.ehabnaguib.android.securec.utils
 
 import android.widget.Toast
 import androidx.biometric.BiometricManager

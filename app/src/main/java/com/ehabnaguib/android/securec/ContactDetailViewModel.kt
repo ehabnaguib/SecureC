@@ -1,18 +1,16 @@
-package com.ehabnaguib.android.privatecontacts
+package com.ehabnaguib.android.securec
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.ehabnaguib.android.privatecontacts.database.ContactRepository
-import com.ehabnaguib.android.privatecontacts.model.Contact
-import com.google.android.gms.maps.model.LatLng
+import com.ehabnaguib.android.securec.database.ContactRepository
+import com.ehabnaguib.android.securec.model.Contact
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
-import kotlin.properties.Delegates
 
 class ContactDetailViewModel (contactId : UUID?) : ViewModel() {
 

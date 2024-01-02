@@ -1,4 +1,4 @@
-package com.ehabnaguib.android.privatecontacts.utils
+package com.ehabnaguib.android.securec.utils
 
 import android.content.Context
 import android.graphics.Canvas
@@ -10,7 +10,7 @@ import android.graphics.drawable.ColorDrawable
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.ehabnaguib.android.privatecontacts.R
+import com.ehabnaguib.android.securec.R
 
 abstract class SwipeToDeleteCallback(context: Context) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
 

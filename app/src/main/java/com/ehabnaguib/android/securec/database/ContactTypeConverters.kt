@@ -1,8 +1,7 @@
-package com.ehabnaguib.android.privatecontacts.database
+package com.ehabnaguib.android.securec.database
 
 import androidx.room.TypeConverter
 import com.google.android.gms.maps.model.LatLng
-import java.util.Date
 
 class ContactTypeConverters {
     @TypeConverter

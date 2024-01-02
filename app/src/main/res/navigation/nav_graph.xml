@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/contactListFragment"
-        android:name="com.ehabnaguib.android.privatecontacts.ContactListFragment"
+        android:name="com.ehabnaguib.android.securec.ContactListFragment"
         android:label="fragment_contact_list"
         tools:layout="@layout/fragment_contact_list" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/contactDetailFragment"
-        android:name="com.ehabnaguib.android.privatecontacts.ContactDetailFragment"
+        android:name="com.ehabnaguib.android.securec.ContactDetailFragment"
         android:label="fragment_contact_detail"
         tools:layout="@layout/fragment_contact_detail" >
         <argument
@@ -29,7 +29,7 @@
     </fragment>
     <fragment
         android:id="@+id/mapFragment"
-        android:name="com.ehabnaguib.android.privatecontacts.MapFragment"
+        android:name="com.ehabnaguib.android.securec.MapFragment"
         android:label="fragment_map"
         tools:layout="@layout/fragment_map" >
         <argument
@@ -40,7 +40,7 @@
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
-        android:name="com.ehabnaguib.android.privatecontacts.SplashFragment"
+        android:name="com.ehabnaguib.android.securec.SplashFragment"
         android:label="fragment_splash"
         tools:layout="@layout/fragment_splash" >
         <action

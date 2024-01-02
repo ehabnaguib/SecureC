@@ -1,4 +1,4 @@
-package com.ehabnaguib.android.privatecontacts
+package com.ehabnaguib.android.securec
 
 import org.junit.Test
 

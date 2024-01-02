@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Private Contacts"
+rootProject.name = "SecureC"
 include(":app")

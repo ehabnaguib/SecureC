@@ -1,10 +1,10 @@
-package com.ehabnaguib.android.privatecontacts
+package com.ehabnaguib.android.securec
 
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ehabnaguib.android.privatecontacts.database.ContactRepository
-import com.ehabnaguib.android.privatecontacts.model.Contact
+import com.ehabnaguib.android.securec.database.ContactRepository
+import com.ehabnaguib.android.securec.model.Contact
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

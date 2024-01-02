@@ -1,8 +1,8 @@
-package com.ehabnaguib.android.privatecontacts.database
+package com.ehabnaguib.android.securec.database
 
 import android.content.Context
 import androidx.room.Room
-import com.ehabnaguib.android.privatecontacts.model.Contact
+import com.ehabnaguib.android.securec.model.Contact
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow

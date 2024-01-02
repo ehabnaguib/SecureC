@@ -1,11 +1,11 @@
-package com.ehabnaguib.android.privatecontacts.database
+package com.ehabnaguib.android.securec.database
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.ehabnaguib.android.privatecontacts.model.Contact
+import com.ehabnaguib.android.securec.model.Contact
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
