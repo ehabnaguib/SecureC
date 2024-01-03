@@ -24,6 +24,7 @@ object AuthenticationHandler {
                 val biometricPrompt = BiometricPrompt(fragment, executor, object : BiometricPrompt.AuthenticationCallback() {
                     override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                         super.onAuthenticationError(errorCode, errString)
+                        fragment.requireActivity().finish()
                     }
 
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -44,11 +45,13 @@ object AuthenticationHandler {
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
                 Toast.makeText(context,
                     "There is no suitable hardware available to be used for authentication.", Toast.LENGTH_SHORT).show()
+                fragment.requireActivity().finish()
             }
 
             BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
                 Toast.makeText(context,
                     "Authentication hardware not available. Try again later.", Toast.LENGTH_SHORT).show()
+                fragment.requireActivity().finish()
             }
 
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
@@ -56,13 +59,17 @@ object AuthenticationHandler {
             }
 
             BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED,
-            BiometricManager.BIOMETRIC_STATUS_UNKNOWN ->
+            BiometricManager.BIOMETRIC_STATUS_UNKNOWN ->{
                 Toast.makeText(context,
                     "There's a problem with the security of your hardware. You might need a security update.", Toast.LENGTH_SHORT).show()
+                fragment.requireActivity().finish()
+            }
+
 
             BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED -> {
                 Toast.makeText(context,
                     "This type of authentication is not supported on your phone.", Toast.LENGTH_SHORT).show()
+                fragment.requireActivity().finish()
             }
         }
     }

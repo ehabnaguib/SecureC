@@ -37,8 +37,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.transition.Fade
-import com.ehabnaguib.android.privatecontacts.R
-import com.ehabnaguib.android.privatecontacts.databinding.FragmentContactDetailBinding
+import com.ehabnaguib.android.securec.databinding.FragmentContactDetailBinding
 import com.ehabnaguib.android.securec.model.Contact
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
