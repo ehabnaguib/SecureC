@@ -6,7 +6,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.Matrix
+import android.graphics.drawable.ColorDrawable
 import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
@@ -22,6 +24,8 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.view.WindowManager
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -217,53 +221,79 @@ class ContactDetailFragment : Fragment() {
 
 
             contactPhoto.setOnClickListener {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    when {
-                        ContextCompat.checkSelfPermission(
-                            requireActivity(),
-                            android.Manifest.permission.READ_MEDIA_IMAGES
-                        ) == PackageManager.PERMISSION_GRANTED -> {
-                            photoPickerLauncher.launch("image/*")
-                        }
 
-                        ActivityCompat.shouldShowRequestPermissionRationale(
-                            requireActivity(), android.Manifest.permission.READ_MEDIA_IMAGES
-                        ) -> {
-                            Toast.makeText(
-                                requireActivity(),
-                                "You just denied permission.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                val builder = AlertDialog.Builder(requireContext())
 
-                        else -> {
-                            requestPhotoPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES)
-                        }
-                    }
-                } else {
-                    when {
-                        ContextCompat.checkSelfPermission(
-                            requireActivity(),
-                            android.Manifest.permission.READ_EXTERNAL_STORAGE
-                        ) == PackageManager.PERMISSION_GRANTED -> {
-                            photoPickerLauncher.launch("image/*")
-                        }
-
-                        ActivityCompat.shouldShowRequestPermissionRationale(
-                            requireActivity(), android.Manifest.permission.READ_EXTERNAL_STORAGE
-                        ) -> {
-                            Toast.makeText(
-                                requireActivity(),
-                                "You just denied permission.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-
-                        else -> {
-                            requestPhotoPermissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                        }
-                    }
+                builder.setPositiveButton("Update Photo") { dialog, which ->
+                    // Handle the positive button action here
                 }
+
+                builder.setNegativeButton("Remove Photo") { dialog, which ->
+                    // Handle the negative button action here
+                }
+
+                val dialog = builder.create()
+
+                dialog.window?.apply {
+                    // Set the width of the dialog window to wrap its content
+                    val params: WindowManager.LayoutParams = attributes
+                    params.width = WindowManager.LayoutParams.WRAP_CONTENT
+                    attributes = params
+
+                    // Set the background to transparent (if required)
+
+                }
+                dialog.show()
+
+
+
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//                    when {
+//                        ContextCompat.checkSelfPermission(
+//                            requireActivity(),
+//                            android.Manifest.permission.READ_MEDIA_IMAGES
+//                        ) == PackageManager.PERMISSION_GRANTED -> {
+//                            photoPickerLauncher.launch("image/*")
+//                        }
+//
+//                        ActivityCompat.shouldShowRequestPermissionRationale(
+//                            requireActivity(), android.Manifest.permission.READ_MEDIA_IMAGES
+//                        ) -> {
+//                            Toast.makeText(
+//                                requireActivity(),
+//                                "You just denied permission.",
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//                        }
+//
+//                        else -> {
+//                            requestPhotoPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES)
+//                        }
+//                    }
+//                } else {
+//                    when {
+//                        ContextCompat.checkSelfPermission(
+//                            requireActivity(),
+//                            android.Manifest.permission.READ_EXTERNAL_STORAGE
+//                        ) == PackageManager.PERMISSION_GRANTED -> {
+//                            photoPickerLauncher.launch("image/*")
+//                        }
+//
+//                        ActivityCompat.shouldShowRequestPermissionRationale(
+//                            requireActivity(), android.Manifest.permission.READ_EXTERNAL_STORAGE
+//                        ) -> {
+//                            Toast.makeText(
+//                                requireActivity(),
+//                                "You just denied permission.",
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//                        }
+//
+//                        else -> {
+//                            requestPhotoPermissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+//                        }
+//                    }
+//                }
             }
         }
 
