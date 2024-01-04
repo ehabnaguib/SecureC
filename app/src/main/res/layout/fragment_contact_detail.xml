@@ -37,6 +37,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
+                app:cardBackgroundColor="#222222"
                 app:cardCornerRadius="8dp"
                 app:cardElevation="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -56,9 +57,9 @@
                         android:layout_height="wrap_content"
                         android:text="Contact Name:"
                         android:textAppearance="?attr/textAppearanceHeadline6"
-                        android:textColor="#01579B"
+                        android:textColor="@color/blue_500"
                         android:textSize="16sp"
-                        android:textStyle="bold" />
+                         />
 
                     <EditText
                         android:id="@+id/contact_name"
@@ -74,9 +75,9 @@
                         android:layout_marginTop="16dp"
                         android:text="Phone Number:"
                         android:textAppearance="?attr/textAppearanceHeadline6"
-                        android:textColor="#01579B"
+                        android:textColor="@color/blue_500"
                         android:textSize="16sp"
-                        android:textStyle="bold" />
+                        />
 
                     <EditText
                         android:id="@+id/contact_number"
@@ -126,7 +127,7 @@
                 android:id="@+id/contact_notes"
                 android:layout_width="0dp"
                 android:layout_height="200dp"
-                android:background="@color/quantum_yellow50"
+                android:background="#252522"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:hint="Add notes here.."

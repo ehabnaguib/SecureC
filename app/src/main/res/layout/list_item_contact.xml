@@ -33,7 +33,7 @@
                 android:id="@+id/contact_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#212121"
+                android:textColor="@color/white"
                 android:textSize="18dp"
                 android:textStyle="bold"
                 tools:text="Name" />
@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
                 android:text="01006548974"
-                android:textColor="@color/gray_600"
+                android:textColor="@color/gray_400"
                 android:textSize="16sp" />
 
         </LinearLayout>
