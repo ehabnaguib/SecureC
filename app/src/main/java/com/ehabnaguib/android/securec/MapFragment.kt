@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.navArgs
@@ -60,6 +61,7 @@ class MapFragment : Fragment() {
                 val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
                 mapFragment?.getMapAsync { googleMap ->
                     googleMap.clear()
+                    Toast.makeText(requireContext(), "Location cleared.", Toast.LENGTH_SHORT).show()
                     location = null
                     setFragmentResult(REQUEST_KEY_LOCATION, bundleOf(BUNDLE_KEY_LOCATION to null))
                 }

@@ -42,19 +42,23 @@ class ContactDetailViewModel (contactId : UUID?) : ViewModel() {
         }
     }
 
-    fun saveContact() {
+    fun saveContact() : Boolean {
         contact.value?.let { contact ->
-            if (isNewContact){
-                if(!isContactBlank(contact)){
+            if(isContactChanged()){
+                if(isNewContact && !isContactBlank()) {
                     viewModelScope.launch {
                         contactRepository.addContact(contact)
                     }
+                    return true
+                }
+                else {
+                    contactRepository.updateContact(contact)
+                    return true
                 }
             }
-            else{
-                contactRepository.updateContact(contact)
-            }
+            else return false
         }
+        return false
     }
 
     fun deleteContact() {
@@ -77,8 +81,12 @@ class ContactDetailViewModel (contactId : UUID?) : ViewModel() {
         return contact.value != initialContact
     }
 
-    fun isContactBlank(contact: Contact) :Boolean {
-        return (contact.name.isBlank() && contact.number.isBlank())
+    fun isContactBlank() :Boolean {
+        val contact = contact.value
+        return if (contact != null)
+            (contact.name.isBlank() && contact.number.isBlank() && contact.photo.isBlank() && contact.location == null)
+        else
+            true
     }
 }
 

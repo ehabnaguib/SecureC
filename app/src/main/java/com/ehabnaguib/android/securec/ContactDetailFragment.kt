@@ -1,6 +1,8 @@
 package com.ehabnaguib.android.securec
 
 
+import android.Manifest
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,6 +17,7 @@ import android.os.Build
 import android.os.Bundle
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -24,14 +27,13 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import android.view.WindowManager
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.scale
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -41,6 +43,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.transition.Fade
+import com.ehabnaguib.android.securec.databinding.DialogPhotoOptionsBinding
 import com.ehabnaguib.android.securec.databinding.FragmentContactDetailBinding
 import com.ehabnaguib.android.securec.model.Contact
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -54,6 +57,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
 import java.util.Locale
+import kotlin.math.roundToInt
 
 private const val TAG = "ContactDetailFragment"
 
@@ -74,7 +78,7 @@ class ContactDetailFragment : Fragment() {
     private var myContact : Contact? = null
 
     private var photoName : String? = ""
-    private var location : LatLng? = null
+    private var photoBitmap : Bitmap? = null
 
     private val requestCallPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -103,8 +107,7 @@ class ContactDetailFragment : Fragment() {
         if (uri != null) {
             photoName = "IMG_${Date()}.JPG"
             deleteOldPhotoFile(requireContext())
-            binding.contactPhoto.foreground = null
-            adjustAndSavePhoto(requireContext(), uri, photoName!!)
+            getPhotoAndAdjust(requireContext(), uri, photoName!!)
         } else
             Toast.makeText(requireActivity(), "Cound't get image", Toast.LENGTH_SHORT).show()
     }
@@ -218,82 +221,41 @@ class ContactDetailFragment : Fragment() {
             }
 
 
-
-
             contactPhoto.setOnClickListener {
 
-                val builder = AlertDialog.Builder(requireContext())
+                if(myContact?.photo!!.isBlank())
+                    updatePhoto()
+                else {
+                    val photoDialog = Dialog(requireContext())
+                    val dialogBinding: DialogPhotoOptionsBinding = DialogPhotoOptionsBinding.inflate(layoutInflater)
+                    photoDialog.setContentView(dialogBinding.root)
 
-                builder.setPositiveButton("Update Photo") { dialog, which ->
-                    // Handle the positive button action here
+                    dialogBinding.apply {
+                        btnUpdatePhoto.setOnClickListener {
+                            updatePhoto()
+                            photoDialog.dismiss()
+                        }
+
+                        btnRemovePhoto.setOnClickListener {
+                            deleteOldPhotoFile(requireContext())
+                            contactDetailViewModel.updateContact { oldContact ->
+                                oldContact.copy(photo = "")
+                            }
+                            contactPhoto.setImageResource(R.drawable.image_person_24)
+                            photoDialog.dismiss()
+                        }
+
+                        btnCancel.setOnClickListener {
+                            photoDialog.dismiss()
+                        }
+                    }
+
+                    val window = photoDialog.window
+                    window?.attributes?.gravity = Gravity.TOP
+                    window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#20262626")))
+
+                    photoDialog.show()
                 }
-
-                builder.setNegativeButton("Remove Photo") { dialog, which ->
-                    // Handle the negative button action here
-                }
-
-                val dialog = builder.create()
-
-                dialog.window?.apply {
-                    // Set the width of the dialog window to wrap its content
-                    val params: WindowManager.LayoutParams = attributes
-                    params.width = WindowManager.LayoutParams.WRAP_CONTENT
-                    attributes = params
-
-                    // Set the background to transparent (if required)
-
-                }
-                dialog.show()
-
-
-
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//                    when {
-//                        ContextCompat.checkSelfPermission(
-//                            requireActivity(),
-//                            android.Manifest.permission.READ_MEDIA_IMAGES
-//                        ) == PackageManager.PERMISSION_GRANTED -> {
-//                            photoPickerLauncher.launch("image/*")
-//                        }
-//
-//                        ActivityCompat.shouldShowRequestPermissionRationale(
-//                            requireActivity(), android.Manifest.permission.READ_MEDIA_IMAGES
-//                        ) -> {
-//                            Toast.makeText(
-//                                requireActivity(),
-//                                "You just denied permission.",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
-//                        }
-//
-//                        else -> {
-//                            requestPhotoPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES)
-//                        }
-//                    }
-//                } else {
-//                    when {
-//                        ContextCompat.checkSelfPermission(
-//                            requireActivity(),
-//                            android.Manifest.permission.READ_EXTERNAL_STORAGE
-//                        ) == PackageManager.PERMISSION_GRANTED -> {
-//                            photoPickerLauncher.launch("image/*")
-//                        }
-//
-//                        ActivityCompat.shouldShowRequestPermissionRationale(
-//                            requireActivity(), android.Manifest.permission.READ_EXTERNAL_STORAGE
-//                        ) -> {
-//                            Toast.makeText(
-//                                requireActivity(),
-//                                "You just denied permission.",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
-//                        }
-//
-//                        else -> {
-//                            requestPhotoPermissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-//                        }
-//                    }
-//                }
             }
         }
 
@@ -308,9 +270,65 @@ class ContactDetailFragment : Fragment() {
 
     }
 
+    private fun updatePhoto() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    requireActivity(),
+                    Manifest.permission.READ_MEDIA_IMAGES
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    photoPickerLauncher.launch("image/*")
+                }
+
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(), Manifest.permission.READ_MEDIA_IMAGES
+                ) -> {
+                    Toast.makeText(
+                        requireActivity(),
+                        "You need to grant permission to access photos",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                else -> {
+                    requestPhotoPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                }
+            }
+        } else {
+            when {
+                ContextCompat.checkSelfPermission(
+                    requireActivity(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    photoPickerLauncher.launch("image/*")
+                }
+
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE
+                ) -> {
+                    Toast.makeText(
+                        requireActivity(),
+                        "You need to grant permission to access photos",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                else -> {
+                    requestPhotoPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+            }
+        }
+    }
+
     private fun saveContact() {
-        if (contactDetailViewModel.isContactChanged()) {
-            contactDetailViewModel.saveContact()
+        if (contactDetailViewModel.saveContact()) {
+
+            photoBitmap?.let{
+                val file = File(context?.filesDir, photoName)
+                val outputStream = FileOutputStream(file)
+                it.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                outputStream.close()
+            }
             Toast.makeText(requireActivity(), "Data Saved", Toast.LENGTH_SHORT).show()
         }
         requireActivity().supportFragmentManager.popBackStack()
@@ -330,8 +348,11 @@ class ContactDetailFragment : Fragment() {
             if (contactNumber.text.toString() != contact.number) {
                 contactNumber.setText(contact.number)
             }
-            if (contact.photo.isNotBlank()){
-                binding.contactPhoto.foreground = null
+
+            if (contact.photo.isBlank()){
+                binding.contactPhoto.setImageResource(R.drawable.image_person_24)
+            }
+            else{
                 val file = File(requireActivity().filesDir, contact.photo)
 
                 if (file.exists()) {
@@ -351,7 +372,7 @@ class ContactDetailFragment : Fragment() {
                 )
             }
 
-            location = contact.location
+            val location = contact.location
 
             if(location != null) {
                 mapView.visibility = VISIBLE
@@ -389,17 +410,17 @@ class ContactDetailFragment : Fragment() {
 
         when {
             ContextCompat.checkSelfPermission(requireContext(),
-                android.Manifest.permission.CALL_PHONE
+                Manifest.permission.CALL_PHONE
             ) == PackageManager.PERMISSION_GRANTED -> {
                 startActivity(callIntent)
             }
             ActivityCompat.shouldShowRequestPermissionRationale(
-                requireActivity(), android.Manifest.permission.CALL_PHONE) -> {
+                requireActivity(), Manifest.permission.CALL_PHONE) -> {
                 Toast.makeText(requireContext(), "You need to allow call permission from your phone settings.", Toast.LENGTH_SHORT).show()
             }
             else -> {
                 requestCallPermissionLauncher.launch(
-                    android.Manifest.permission.CALL_PHONE)
+                    Manifest.permission.CALL_PHONE)
             }
         }
     }
@@ -461,26 +482,19 @@ class ContactDetailFragment : Fragment() {
 
 
 
-    private fun adjustAndSavePhoto(context: Context, imageUri: Uri, photoName: String) {
+    private fun getPhotoAndAdjust(context: Context, imageUri: Uri, photoName: String) {
 
-        val fixedBitmap = fixPhotoRotation(context, imageUri)
+        photoBitmap = fixPhotoSizeAndRotation(context, imageUri)
+        binding.contactPhoto.setImageBitmap(photoBitmap)
 
-        if (fixedBitmap != null){
-            val file = File(context.filesDir, photoName)
-            val outputStream = FileOutputStream(file)
-            fixedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-            outputStream.close()
+        contactDetailViewModel.updateContact { oldContact ->
+            oldContact.copy(photo = photoName)
 
-            contactDetailViewModel.updateContact { oldContact ->
-                oldContact.copy(photo = photoName)
-            }
         }
-        else
-            Toast.makeText(context, "Something went wrong.", Toast.LENGTH_SHORT).show()
 
     }
 
-    private fun fixPhotoRotation(context: Context, imageUri: Uri) : Bitmap?{
+    private fun fixPhotoSizeAndRotation(context: Context, imageUri: Uri) : Bitmap?{
         val inputStream1 = context.contentResolver.openInputStream(imageUri)
 
         if (inputStream1 == null){
@@ -497,18 +511,32 @@ class ContactDetailFragment : Fragment() {
             Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
             return null
         }
+
         val originalBitmap = BitmapFactory.decodeStream(inputStream2)
         inputStream2.close()
 
-        val fixedBitmap = when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(originalBitmap, 90f)
-            ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(originalBitmap, 180f)
-            ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(originalBitmap, 270f)
-            else -> originalBitmap
+        val srcWidth = originalBitmap.width
+        val srcHeight = originalBitmap.height
+
+        var desiredHeight = srcHeight
+        var divisions = 1
+        while (desiredHeight > 200){
+            desiredHeight = desiredHeight / 2
+            divisions++
         }
 
-        return fixedBitmap
+        val scaledBitmap = originalBitmap.scale(srcWidth/divisions, srcHeight/divisions)
+
+        val photoBitmap = when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(scaledBitmap, 90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(scaledBitmap, 180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(scaledBitmap, 270f)
+            else -> scaledBitmap
+        }
+
+        return photoBitmap
     }
+
 
     private fun deleteOldPhotoFile(context: Context) {
         val oldPhotoName: String = contactDetailViewModel.getPhotoName()
