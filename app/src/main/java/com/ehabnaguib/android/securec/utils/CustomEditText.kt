@@ -1,7 +1,6 @@
 package com.ehabnaguib.android.securec.utils
 
 import android.content.Context
-import android.text.method.ScrollingMovementMethod
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View

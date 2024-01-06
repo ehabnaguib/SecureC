@@ -11,7 +11,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.drawable.ColorDrawable
-import android.media.ExifInterface
+import androidx.exifinterface.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -58,7 +58,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
 import java.util.Locale
-import kotlin.math.roundToInt
 
 private const val TAG = "ContactDetailFragment"
 
@@ -110,7 +109,7 @@ class ContactDetailFragment : Fragment() {
             deleteOldPhotoFile(requireContext())
             getPhotoAndAdjust(requireContext(), uri, photoName!!)
         } else
-            Toast.makeText(requireActivity(), "Cound't get image", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireActivity(), "Couldn't get an image", Toast.LENGTH_SHORT).show()
     }
 
     private val onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
@@ -156,7 +155,7 @@ class ContactDetailFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentContactDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -241,7 +240,9 @@ class ContactDetailFragment : Fragment() {
             MapFragment.REQUEST_KEY_LOCATION
         ) { _, bundle ->
             val newLocation =
-                bundle.getParcelable(MapFragment.BUNDLE_KEY_LOCATION) as LatLng?
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    bundle.getParcelable(MapFragment.BUNDLE_KEY_LOCATION, String::class.java) as LatLng?
+                else bundle.getParcelable(MapFragment.BUNDLE_KEY_LOCATION) as LatLng?
             contactDetailViewModel.updateContact { it.copy(location = newLocation) }
             Log.d(TAG, newLocation.toString())
         }
@@ -325,12 +326,12 @@ class ContactDetailFragment : Fragment() {
                 val mapFragment = childFragmentManager.findFragmentById(R.id.map_view) as SupportMapFragment?
                 mapFragment?.getMapAsync { googleMap ->
                     googleMap.clear()
-                    googleMap.addMarker(MarkerOptions().position(location!!))
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location!!, 14f))
+                    googleMap.addMarker(MarkerOptions().position(location))
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 14f))
                     googleMap.setOnMapClickListener {
                         val uriBegin = "geo:$location"
-                        val latitude = location!!.latitude
-                        val longitude = location!!.longitude
+                        val latitude = location.latitude
+                        val longitude = location.longitude
                         val label = contact.name
                         val query = "$latitude,$longitude($label)"
                         val encodedQuery = Uri.encode(query)
@@ -355,7 +356,7 @@ class ContactDetailFragment : Fragment() {
         if (contactDetailViewModel.saveContact()) {
 
             photoBitmap?.let{
-                val file = File(context?.filesDir, photoName)
+                val file = File(context?.filesDir, photoName!!)
                 val outputStream = FileOutputStream(file)
                 it.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
                 outputStream.close()
@@ -390,7 +391,7 @@ class ContactDetailFragment : Fragment() {
         val builder = AlertDialog.Builder(requireActivity())
         builder.setTitle("Delete Contact")
         builder.setMessage("Are you sure you want to Delete this contact?")
-        builder.setPositiveButton("Yes") { dialog, which ->
+        builder.setPositiveButton("Yes") { _, _ ->
             viewLifecycleOwner.lifecycleScope.launch {
                 contactDetailViewModel.deleteContact()
                 deleteOldPhotoFile(requireActivity())
@@ -398,7 +399,7 @@ class ContactDetailFragment : Fragment() {
                 requireActivity().supportFragmentManager.popBackStack()
             }
         }
-        builder.setNegativeButton("No") { dialog, which ->
+        builder.setNegativeButton("No") { dialog, _ ->
             dialog.dismiss()
         }
         builder.setCancelable(false)
@@ -537,7 +538,7 @@ class ContactDetailFragment : Fragment() {
         var desiredHeight = srcHeight
         var divisions = 1
         while (desiredHeight > 200){
-            desiredHeight = desiredHeight / 2
+            desiredHeight /= 2
             divisions++
         }
 

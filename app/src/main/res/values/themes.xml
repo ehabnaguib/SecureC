@@ -1,13 +1,13 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.PrivateContacts" parent="Theme.Material3.Dark">
 
-        <item name="colorPrimary">@color/blue_500</item>
-        <item name="colorPrimaryDark">@color/blue_700</item>
-        <item name="colorPrimaryVariant">@color/blue_700</item>
-        <item name="colorOnPrimary">@color/blue_text</item>
-        <item name="colorSecondary">@color/blue_200</item>
-        <item name="colorOnSecondary">@color/grey_900</item>
+        <item name="colorPrimary">@color/blue3</item>
+        <item name="colorPrimaryDark">@color/blue1</item>
+        <item name="colorPrimaryVariant">@color/blue2</item>
+        <item name="colorOnPrimary">@color/blue2</item>
+        <item name="colorSecondary">@color/blue4</item>
+        <item name="colorOnSecondary">@color/gray1</item>
 
     </style>
 

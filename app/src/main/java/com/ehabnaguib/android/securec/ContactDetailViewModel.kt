@@ -81,7 +81,7 @@ class ContactDetailViewModel (contactId : UUID?) : ViewModel() {
         return contact.value != initialContact
     }
 
-    fun isContactBlank() :Boolean {
+    private fun isContactBlank() :Boolean {
         val contact = contact.value
         return if (contact != null)
             (contact.name.isBlank() && contact.number.isBlank() && contact.photo.isBlank() && contact.location == null)

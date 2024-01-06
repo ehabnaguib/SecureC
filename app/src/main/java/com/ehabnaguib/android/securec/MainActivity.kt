@@ -10,7 +10,6 @@ import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment
-import com.ehabnaguib.android.securec.R
 import com.ehabnaguib.android.securec.databinding.ActivityMainBinding
 import com.ehabnaguib.android.securec.utils.AuthenticationHandler
 

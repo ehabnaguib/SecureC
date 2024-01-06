@@ -24,8 +24,4 @@ class ContactListViewModel : ViewModel() {
             }
         }
     }
-
-    suspend fun addContact(contact: Contact) {
-        contactRepository.addContact(contact)
-    }
 }
