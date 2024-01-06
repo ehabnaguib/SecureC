@@ -12,7 +12,9 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.setFragmentResult
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.navArgs
 import com.ehabnaguib.android.securec.databinding.FragmentMapBinding
 import com.google.android.gms.common.api.Status
@@ -43,33 +45,6 @@ class MapFragment : Fragment() {
     private var location : LatLng? = null
 
     private lateinit var placesClient: PlacesClient
-    private lateinit var predictionsAdapter: ArrayAdapter<AutocompletePrediction>
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_map, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.clear_map -> {
-                val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-                mapFragment?.getMapAsync { googleMap ->
-                    googleMap.clear()
-                    Toast.makeText(requireContext(), "Location cleared.", Toast.LENGTH_SHORT).show()
-                    location = null
-                    setFragmentResult(REQUEST_KEY_LOCATION, bundleOf(BUNDLE_KEY_LOCATION to null))
-                }
-                return true
-            }
-            else -> return super.onOptionsItemSelected(item)
-        }
-    }
 
 
     override fun onCreateView(
@@ -80,9 +55,10 @@ class MapFragment : Fragment() {
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(createMenuProvider(), viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         val autocompleteFragment = childFragmentManager.findFragmentById(R.id.search_view_fragment)
@@ -131,6 +107,30 @@ class MapFragment : Fragment() {
         })
         binding.saveButton.setOnClickListener {
             requireActivity().supportFragmentManager.popBackStack()
+        }
+    }
+
+    private fun createMenuProvider(): MenuProvider {
+        return object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_map, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.clear_map -> {
+                        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+                        mapFragment?.getMapAsync { googleMap ->
+                            googleMap.clear()
+                            Toast.makeText(requireContext(), "Location cleared.", Toast.LENGTH_SHORT).show()
+                            location = null
+                            setFragmentResult(REQUEST_KEY_LOCATION, bundleOf(BUNDLE_KEY_LOCATION to null))
+                        }
+                        true
+                    }
+                    else -> false
+                }
+            }
         }
     }
 

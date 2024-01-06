@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -59,7 +60,7 @@ class ContactListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+
         exitTransition = Fade()
         enterTransition= Fade()
         reenterTransition = Fade()
@@ -95,6 +96,10 @@ class ContactListFragment : Fragment() {
             }
         }
 
+        requireActivity().addMenuProvider(createMenuProvider(), viewLifecycleOwner, Lifecycle.State.RESUMED)
+
+
+
         //Adding the swipe-to-call functionality to the contact list
         val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
@@ -108,56 +113,63 @@ class ContactListFragment : Fragment() {
         itemTouchHelper.attachToRecyclerView(binding.contactRecyclerView)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_contact_list, menu)
-
-        val searchItem: MenuItem = menu.findItem(R.id.search_contacts)
-        val searchView = searchItem.actionView as? SearchView
-
-        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                if (allContacts != null && newText !=null) {
-                    if(newText.isEmpty())
-                        binding.contactRecyclerView.adapter =
-                            ContactListAdapter(requireContext(), allContacts!!) { contactId ->
-                                findNavController().navigate(
-                                    ContactListFragmentDirections.openContactDetail(contactId)
-                                )
-                            }
-                    else{
-                        searchResult = allContacts!!.filter { contact ->
-                            contact.name.contains(newText, ignoreCase = true)
-                        } .sortedWith(compareBy(
-                            { !it.name.startsWith(newText, ignoreCase = true) },
-                            { it.name }
-                        ))
-                        binding.contactRecyclerView.adapter =
-                            ContactListAdapter(requireContext(), searchResult!!) { contactId ->
-                                findNavController().navigate(
-                                    ContactListFragmentDirections.openContactDetail(contactId)
-                                )
-                            }
-                    }
-                }
-                return true
-            }
-        })
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.new_contact -> {
+    private fun createMenuProvider() = object : MenuProvider {
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            menuInflater.inflate(R.menu.fragment_contact_list, menu)
+
+            val searchItem: MenuItem = menu.findItem(R.id.search_contacts)
+            val searchView = searchItem.actionView as? SearchView
+
+            searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    if (allContacts != null && newText != null) {
+                        if (newText.isEmpty())
+                            binding.contactRecyclerView.adapter =
+                                ContactListAdapter(requireContext(), allContacts!!) { contactId ->
+                                    findNavController().navigate(
+                                        ContactListFragmentDirections.openContactDetail(contactId)
+                                    )
+                                }
+                        else {
+                            searchResult = allContacts!!.filter { contact ->
+                                contact.name.contains(newText, ignoreCase = true)
+                            }.sortedWith(compareBy(
+                                { !it.name.startsWith(newText, ignoreCase = true) },
+                                { it.name }
+                            ))
+                            binding.contactRecyclerView.adapter =
+                                ContactListAdapter(requireContext(), searchResult!!) { contactId ->
+                                    findNavController().navigate(
+                                        ContactListFragmentDirections.openContactDetail(contactId)
+                                    )
+                                }
+                        }
+                    }
+                    return true
+                }
+            })
+        }
+
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+            return when (menuItem.itemId) {
+                R.id.new_contact -> {
                     findNavController().navigate(
                         ContactListFragmentDirections.openContactDetail(null)
                     )
-                true
+                    true
+                }
+
+                else -> false
             }
-            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -181,8 +193,5 @@ class ContactListFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
+
 }

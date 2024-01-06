@@ -34,6 +34,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.scale
+import androidx.core.view.MenuProvider
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -112,7 +113,7 @@ class ContactDetailFragment : Fragment() {
             Toast.makeText(requireActivity(), "Cound't get image", Toast.LENGTH_SHORT).show()
     }
 
-    private val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+    private val onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             if (contactDetailViewModel.isContactChanged()) {
                 val builder = AlertDialog.Builder(requireActivity())
@@ -138,9 +139,9 @@ class ContactDetailFragment : Fragment() {
     }
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
 
         exitTransition = Fade()
         enterTransition= Fade()
@@ -148,31 +149,7 @@ class ContactDetailFragment : Fragment() {
         returnTransition = Fade()
 
         // Note that you need to remove the callback when the Fragment is destroyed
-        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_contact_detail, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.delete_button -> {
-                deleteContact()
-
-                return true
-            }
-            R.id.call_button -> {
-                callNumber(myContact!!.number)
-                return true
-            }
-            R.id.whatsapp_button -> {
-                sendWhatsapp()
-                return true
-            }
-            else -> return super.onOptionsItemSelected(item)
-        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
     override fun onCreateView(
@@ -187,8 +164,9 @@ class ContactDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.apply {
+        requireActivity().addMenuProvider(createMenuProvider(), viewLifecycleOwner, Lifecycle.State.RESUMED)
 
+        binding.apply {
             viewLifecycleOwner.lifecycleScope.launch {
                 viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     contactDetailViewModel.contact.collect { contact ->
@@ -270,74 +248,41 @@ class ContactDetailFragment : Fragment() {
 
     }
 
-    private fun updatePhoto() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            when {
-                ContextCompat.checkSelfPermission(
-                    requireActivity(),
-                    Manifest.permission.READ_MEDIA_IMAGES
-                ) == PackageManager.PERMISSION_GRANTED -> {
-                    photoPickerLauncher.launch("image/*")
-                }
-
-                ActivityCompat.shouldShowRequestPermissionRationale(
-                    requireActivity(), Manifest.permission.READ_MEDIA_IMAGES
-                ) -> {
-                    Toast.makeText(
-                        requireActivity(),
-                        "You need to grant permission to access photos",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                else -> {
-                    requestPhotoPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                }
-            }
-        } else {
-            when {
-                ContextCompat.checkSelfPermission(
-                    requireActivity(),
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED -> {
-                    photoPickerLauncher.launch("image/*")
-                }
-
-                ActivityCompat.shouldShowRequestPermissionRationale(
-                    requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE
-                ) -> {
-                    Toast.makeText(
-                        requireActivity(),
-                        "You need to grant permission to access photos",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                else -> {
-                    requestPhotoPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                }
-            }
-        }
-    }
-
-    private fun saveContact() {
-        if (contactDetailViewModel.saveContact()) {
-
-            photoBitmap?.let{
-                val file = File(context?.filesDir, photoName)
-                val outputStream = FileOutputStream(file)
-                it.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-                outputStream.close()
-            }
-            Toast.makeText(requireActivity(), "Data Saved", Toast.LENGTH_SHORT).show()
-        }
-        requireActivity().supportFragmentManager.popBackStack()
-    }
-
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        onBackPressedCallback.remove()
+    }
+
+    private fun createMenuProvider(): MenuProvider {
+        return object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_contact_detail, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.delete_button -> {
+                        deleteContact()
+
+                        true
+                    }
+                    R.id.call_button -> {
+                        callNumber(myContact!!.number)
+                        true
+                    }
+                    R.id.whatsapp_button -> {
+                        sendWhatsapp()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }
     }
 
     private fun updateUi(contact: Contact) {
@@ -405,43 +350,19 @@ class ContactDetailFragment : Fragment() {
             }
         }
     }
-    private fun callNumber (number : String){
-        val callIntent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number"))
 
-        when {
-            ContextCompat.checkSelfPermission(requireContext(),
-                Manifest.permission.CALL_PHONE
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                startActivity(callIntent)
-            }
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                requireActivity(), Manifest.permission.CALL_PHONE) -> {
-                Toast.makeText(requireContext(), "You need to allow call permission from your phone settings.", Toast.LENGTH_SHORT).show()
-            }
-            else -> {
-                requestCallPermissionLauncher.launch(
-                    Manifest.permission.CALL_PHONE)
-            }
-        }
-    }
+    private fun saveContact() {
+        if (contactDetailViewModel.saveContact()) {
 
-    private fun deleteContact() {
-        val builder = AlertDialog.Builder(requireActivity())
-        builder.setTitle("Delete Contact")
-        builder.setMessage("Are you sure you want to Delete this contact?")
-        builder.setPositiveButton("Yes") { dialog, which ->
-            viewLifecycleOwner.lifecycleScope.launch {
-                contactDetailViewModel.deleteContact()
-                deleteOldPhotoFile(requireActivity())
-                Toast.makeText(requireActivity(), "Deleted", Toast.LENGTH_SHORT).show()
-                requireActivity().supportFragmentManager.popBackStack()
+            photoBitmap?.let{
+                val file = File(context?.filesDir, photoName)
+                val outputStream = FileOutputStream(file)
+                it.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                outputStream.close()
             }
+            Toast.makeText(requireActivity(), "Data Saved", Toast.LENGTH_SHORT).show()
         }
-        builder.setNegativeButton("No") { dialog, which ->
-            dialog.dismiss()
-        }
-        builder.setCancelable(false)
-        builder.show()
+        requireActivity().supportFragmentManager.popBackStack()
     }
 
     private fun sendWhatsapp () {
@@ -465,6 +386,53 @@ class ContactDetailFragment : Fragment() {
         }
     }
 
+    private fun deleteContact() {
+        val builder = AlertDialog.Builder(requireActivity())
+        builder.setTitle("Delete Contact")
+        builder.setMessage("Are you sure you want to Delete this contact?")
+        builder.setPositiveButton("Yes") { dialog, which ->
+            viewLifecycleOwner.lifecycleScope.launch {
+                contactDetailViewModel.deleteContact()
+                deleteOldPhotoFile(requireActivity())
+                Toast.makeText(requireActivity(), "Deleted", Toast.LENGTH_SHORT).show()
+                requireActivity().supportFragmentManager.popBackStack()
+            }
+        }
+        builder.setNegativeButton("No") { dialog, which ->
+            dialog.dismiss()
+        }
+        builder.setCancelable(false)
+        builder.show()
+    }
+
+    private fun deleteOldPhotoFile(context: Context) {
+        val oldPhotoName: String = contactDetailViewModel.getPhotoName()
+        if (oldPhotoName.isNotBlank()) {
+            val file = File(context.filesDir, oldPhotoName)
+            if (file.exists())
+                file.delete()
+        }
+    }
+
+    private fun callNumber (number : String){
+        val callIntent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number"))
+
+        when {
+            ContextCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.CALL_PHONE
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                startActivity(callIntent)
+            }
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                requireActivity(), Manifest.permission.CALL_PHONE) -> {
+                Toast.makeText(requireContext(), "You need to allow call permission from your phone settings.", Toast.LENGTH_SHORT).show()
+            }
+            else -> {
+                requestCallPermissionLauncher.launch(
+                    Manifest.permission.CALL_PHONE)
+            }
+        }
+    }
 
     private fun formatPhoneNumberWithDefaultCountryCode(phoneNumber: String, defaultCountryCode: String): String? {
         val phoneUtil = PhoneNumberUtil.getInstance()
@@ -480,7 +448,55 @@ class ContactDetailFragment : Fragment() {
         }
     }
 
+    private fun updatePhoto() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    requireActivity(),
+                    Manifest.permission.READ_MEDIA_IMAGES
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    photoPickerLauncher.launch("image/*")
+                }
 
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(), Manifest.permission.READ_MEDIA_IMAGES
+                ) -> {
+                    Toast.makeText(
+                        requireActivity(),
+                        "You need to grant permission to access photos",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                else -> {
+                    requestPhotoPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                }
+            }
+        } else {
+            when {
+                ContextCompat.checkSelfPermission(
+                    requireActivity(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    photoPickerLauncher.launch("image/*")
+                }
+
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE
+                ) -> {
+                    Toast.makeText(
+                        requireActivity(),
+                        "You need to grant permission to access photos",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                else -> {
+                    requestPhotoPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+            }
+        }
+    }
 
     private fun getPhotoAndAdjust(context: Context, imageUri: Uri, photoName: String) {
 
@@ -537,17 +553,6 @@ class ContactDetailFragment : Fragment() {
         return photoBitmap
     }
 
-
-    private fun deleteOldPhotoFile(context: Context) {
-        val oldPhotoName: String = contactDetailViewModel.getPhotoName()
-        if (oldPhotoName.isNotBlank()) {
-            val file = File(context.filesDir, oldPhotoName)
-            if (file.exists())
-                file.delete()
-        }
-    }
-
-
     private fun rotateImage(source: Bitmap, angle: Float): Bitmap {
         val matrix = Matrix()
         matrix.postRotate(angle)
@@ -555,8 +560,4 @@ class ContactDetailFragment : Fragment() {
             matrix, true)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        callback.remove()
-    }
 }
