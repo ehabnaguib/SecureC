@@ -65,7 +65,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Enter contact name here"
                         android:importantForAutofill="no"
-                        android:inputType="textCapWords" />
+                        android:inputType="textCapWords"
+                        android:textSize="16sp" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -82,7 +83,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Enter phone number here"
                         android:importantForAutofill="no"
-                        android:inputType="phone" />
+                        android:inputType="phone"
+                        android:textSize="16sp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
