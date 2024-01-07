@@ -9,7 +9,7 @@
         android:id="@+id/contactListFragment"
         android:name="com.ehabnaguib.android.securec.ContactListFragment"
         android:label="fragment_contact_list"
-        tools:layout="@layout/fragment_contact_list" >
+        tools:layout="@layout/fragment_contact_list">
         <action
             android:id="@+id/open_contact_detail"
             app:destination="@id/contactDetailFragment" />
@@ -18,7 +18,7 @@
         android:id="@+id/contactDetailFragment"
         android:name="com.ehabnaguib.android.securec.ContactDetailFragment"
         android:label="fragment_contact_detail"
-        tools:layout="@layout/fragment_contact_detail" >
+        tools:layout="@layout/fragment_contact_detail">
         <argument
             android:name="contactId"
             app:argType="java.util.UUID"
@@ -31,11 +31,11 @@
         android:id="@+id/mapFragment"
         android:name="com.ehabnaguib.android.securec.MapFragment"
         android:label="fragment_map"
-        tools:layout="@layout/fragment_map" >
+        tools:layout="@layout/fragment_map">
         <argument
             android:name="location"
+            android:defaultValue="@null"
             app:argType="android.os.Parcelable"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            app:nullable="true" />
     </fragment>
 </navigation>

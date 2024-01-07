@@ -57,8 +57,7 @@
                         android:text="Contact Name:"
                         android:textAppearance="?attr/textAppearanceHeadline6"
                         android:textColor="@color/blue3"
-                        android:textSize="16sp"
-                         />
+                        android:textSize="16sp" />
 
                     <EditText
                         android:id="@+id/contact_name"
@@ -75,8 +74,7 @@
                         android:text="Phone Number:"
                         android:textAppearance="?attr/textAppearanceHeadline6"
                         android:textColor="@color/blue3"
-                        android:textSize="16sp"
-                        />
+                        android:textSize="16sp" />
 
                     <EditText
                         android:id="@+id/contact_number"
@@ -89,24 +87,21 @@
             </androidx.cardview.widget.CardView>
 
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/set_location"
-                    app:layout_constraintTop_toBottomOf="@id/contact_info"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="@drawable/rounded_button_blue"
-                    android:drawableEnd="@drawable/ic_maps"
-                    android:drawablePadding="8dp"
-                    android:paddingEnd="60dp"
-                    android:paddingStart="60dp"
-                    android:text="add google maps location"
-                    android:textColor="@color/white" />
-
-
-
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/set_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/rounded_button_blue"
+                android:drawableEnd="@drawable/ic_maps"
+                android:drawablePadding="8dp"
+                android:paddingStart="60dp"
+                android:paddingEnd="60dp"
+                android:text="add google maps location"
+                android:textColor="@color/white"
+                app:layout_constraintTop_toBottomOf="@id/contact_info" />
 
 
             <androidx.fragment.app.FragmentContainerView
@@ -126,17 +121,17 @@
                 android:id="@+id/contact_notes"
                 android:layout_width="0dp"
                 android:layout_height="200dp"
-                android:background="@color/gray2"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
-                android:hint="Write additional info here.."
-                android:textSize="16sp"
-                android:padding="10dp"
-                android:importantForAutofill="no"
-                android:maxLength="250"
+                android:background="@color/gray2"
                 android:gravity="top|start"
+                android:hint="Write additional info here.."
+                android:importantForAutofill="no"
                 android:inputType="textMultiLine"
+                android:maxLength="250"
+                android:padding="10dp"
                 android:scrollbars="vertical"
+                android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/map_view" />
@@ -149,8 +144,8 @@
         android:id="@+id/save_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:layout_gravity="bottom"
+        android:layout_marginTop="16dp"
         android:background="@drawable/rounded_button_dark_blue"
         android:text="SAVE"
         android:textColor="@color/white"

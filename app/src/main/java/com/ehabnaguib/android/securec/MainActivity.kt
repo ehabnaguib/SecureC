@@ -39,6 +39,8 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
+        // Requesting authentication everytime the user gets back to the app for security.
+        // App doesn't work if there's no lock screen set up on the phone and notifies the user.
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as? NavHostFragment
         val fragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull()
 
@@ -78,7 +80,6 @@ class MainActivity : AppCompatActivity() {
     override fun onRestart() {
         super.onRestart()
         mainActivityViewModel.shouldAuthenticate = true
-
     }
 }
 

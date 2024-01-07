@@ -91,7 +91,7 @@ class ContactDetailViewModel (contactId : UUID?) : ViewModel() {
 }
 
 
-
+// Factory that makes the view model that can be passed a contactId
 class ContactDetailViewModelFactory(
     private val contactId: UUID?
 ) : ViewModelProvider.Factory {

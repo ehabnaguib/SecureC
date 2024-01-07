@@ -75,7 +75,7 @@ class ContactDetailFragment : Fragment() {
         ContactDetailViewModelFactory(args.contactId)
     }
 
-    private var myContact : Contact? = null
+    private var currentContact : Contact? = null
 
     private var photoName : String? = ""
     private var photoBitmap : Bitmap? = null
@@ -147,7 +147,6 @@ class ContactDetailFragment : Fragment() {
         reenterTransition = Fade()
         returnTransition = Fade()
 
-        // Note that you need to remove the callback when the Fragment is destroyed
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
@@ -165,12 +164,15 @@ class ContactDetailFragment : Fragment() {
 
         requireActivity().addMenuProvider(createMenuProvider(), viewLifecycleOwner, Lifecycle.State.RESUMED)
 
+
         binding.apply {
+
+            // Listening for current contact data updates, and update the UI with it
             viewLifecycleOwner.lifecycleScope.launch {
                 viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     contactDetailViewModel.contact.collect { contact ->
                         contact?.let { updateUi(it) }
-                        myContact = contact
+                        currentContact = contact
                     }
                 }
             }
@@ -197,12 +199,12 @@ class ContactDetailFragment : Fragment() {
                 saveContact()
             }
 
-
             contactPhoto.setOnClickListener {
-
-                if(myContact?.photo!!.isBlank())
+                if(currentContact?.photo!!.isBlank())
                     updatePhoto()
                 else {
+
+                    // Giving the options to update or remove the contact photo if one already exists
                     val photoDialog = Dialog(requireContext())
                     val dialogBinding: DialogPhotoOptionsBinding = DialogPhotoOptionsBinding.inflate(layoutInflater)
                     photoDialog.setContentView(dialogBinding.root)
@@ -229,20 +231,20 @@ class ContactDetailFragment : Fragment() {
 
                     val window = photoDialog.window
                     window?.attributes?.gravity = Gravity.TOP
-                    window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#20262626")))
+
+                    // Make a transparent background for the dialog
+                    window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#00000000")))
 
                     photoDialog.show()
                 }
             }
         }
 
+        // Getting the google maps location that the user set in the MapFragment and updating the contact
         setFragmentResultListener(
             MapFragment.REQUEST_KEY_LOCATION
         ) { _, bundle ->
-            val newLocation =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    bundle.getParcelable(MapFragment.BUNDLE_KEY_LOCATION, String::class.java) as LatLng?
-                else bundle.getParcelable(MapFragment.BUNDLE_KEY_LOCATION) as LatLng?
+            val newLocation = bundle.getParcelable(MapFragment.BUNDLE_KEY_LOCATION) as LatLng?
             contactDetailViewModel.updateContact { it.copy(location = newLocation) }
             Log.d(TAG, newLocation.toString())
         }
@@ -257,33 +259,6 @@ class ContactDetailFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         onBackPressedCallback.remove()
-    }
-
-    private fun createMenuProvider(): MenuProvider {
-        return object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fragment_contact_detail, menu)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.delete_button -> {
-                        deleteContact()
-
-                        true
-                    }
-                    R.id.call_button -> {
-                        callNumber(myContact!!.number)
-                        true
-                    }
-                    R.id.whatsapp_button -> {
-                        sendWhatsapp()
-                        true
-                    }
-                    else -> false
-                }
-            }
-        }
     }
 
     private fun updateUi(contact: Contact) {
@@ -303,7 +278,6 @@ class ContactDetailFragment : Fragment() {
 
                 if (file.exists()) {
                     val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-
                     contactPhoto.setImageBitmap(bitmap)
                 }
             }
@@ -320,7 +294,9 @@ class ContactDetailFragment : Fragment() {
 
             val location = contact.location
 
+
             if(location != null) {
+                // Setting up the fragment that shows the current set location of the user on google maps
                 mapView.visibility = VISIBLE
                 setLocation.text = "Edit Google Maps Location"
                 val mapFragment = childFragmentManager.findFragmentById(R.id.map_view) as SupportMapFragment?
@@ -352,9 +328,34 @@ class ContactDetailFragment : Fragment() {
         }
     }
 
+    private fun createMenuProvider(): MenuProvider {
+        return object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_contact_detail, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.delete_button -> {
+                        deleteContact()
+                        true
+                    }
+                    R.id.call_button -> {
+                        callNumber(currentContact!!.number)
+                        true
+                    }
+                    R.id.whatsapp_button -> {
+                        sendWhatsapp()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }
+    }
+
     private fun saveContact() {
         if (contactDetailViewModel.saveContact()) {
-
             photoBitmap?.let{
                 val file = File(context?.filesDir, photoName!!)
                 val outputStream = FileOutputStream(file)
@@ -366,6 +367,7 @@ class ContactDetailFragment : Fragment() {
         requireActivity().supportFragmentManager.popBackStack()
     }
 
+    // Opens the whatsapp chat of the contact number after resolving its country code
     private fun sendWhatsapp () {
         val context = requireActivity()
         val number = binding.contactNumber.text.toString()
@@ -382,37 +384,8 @@ class ContactDetailFragment : Fragment() {
             } catch (e: Exception) {
                 Toast.makeText(context, "Something went wrong. Make sure WhatsApp is installed.", Toast.LENGTH_SHORT).show()
             }
-        } ?: run {
-            Toast.makeText(context, "Invalid phone number.", Toast.LENGTH_SHORT).show()
-        }
-    }
+        } ?: Toast.makeText(context, "Invalid phone number.", Toast.LENGTH_SHORT).show()
 
-    private fun deleteContact() {
-        val builder = AlertDialog.Builder(requireActivity())
-        builder.setTitle("Delete Contact")
-        builder.setMessage("Are you sure you want to Delete this contact?")
-        builder.setPositiveButton("Yes") { _, _ ->
-            viewLifecycleOwner.lifecycleScope.launch {
-                contactDetailViewModel.deleteContact()
-                deleteOldPhotoFile(requireActivity())
-                Toast.makeText(requireActivity(), "Deleted", Toast.LENGTH_SHORT).show()
-                requireActivity().supportFragmentManager.popBackStack()
-            }
-        }
-        builder.setNegativeButton("No") { dialog, _ ->
-            dialog.dismiss()
-        }
-        builder.setCancelable(false)
-        builder.show()
-    }
-
-    private fun deleteOldPhotoFile(context: Context) {
-        val oldPhotoName: String = contactDetailViewModel.getPhotoName()
-        if (oldPhotoName.isNotBlank()) {
-            val file = File(context.filesDir, oldPhotoName)
-            if (file.exists())
-                file.delete()
-        }
     }
 
     private fun callNumber (number : String){
@@ -447,6 +420,25 @@ class ContactDetailFragment : Fragment() {
             e.printStackTrace()
             null
         }
+    }
+
+    private fun deleteContact() {
+        val builder = AlertDialog.Builder(requireActivity())
+        builder.setTitle("Delete Contact")
+        builder.setMessage("Are you sure you want to Delete this contact?")
+        builder.setPositiveButton("Yes") { _, _ ->
+            viewLifecycleOwner.lifecycleScope.launch {
+                contactDetailViewModel.deleteContact()
+                deleteOldPhotoFile(requireActivity())
+                Toast.makeText(requireActivity(), "Contact Deleted.", Toast.LENGTH_SHORT).show()
+                requireActivity().supportFragmentManager.popBackStack()
+            }
+        }
+        builder.setNegativeButton("No") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.setCancelable(false)
+        builder.show()
     }
 
     private fun updatePhoto() {
@@ -499,6 +491,15 @@ class ContactDetailFragment : Fragment() {
         }
     }
 
+    private fun deleteOldPhotoFile(context: Context) {
+        val oldPhotoName: String = contactDetailViewModel.getPhotoName()
+        if (oldPhotoName.isNotBlank()) {
+            val file = File(context.filesDir, oldPhotoName)
+            if (file.exists())
+                file.delete()
+        }
+    }
+
     private fun getPhotoAndAdjust(context: Context, imageUri: Uri, photoName: String) {
 
         photoBitmap = fixPhotoSizeAndRotation(context, imageUri)
@@ -512,8 +513,9 @@ class ContactDetailFragment : Fragment() {
     }
 
     private fun fixPhotoSizeAndRotation(context: Context, imageUri: Uri) : Bitmap?{
+        // Some photos appear rotated 90 or 180 degrees and exif is needed to compensate
+        // inputStream1 is to get the exif of the photo to determine if it needs rotation
         val inputStream1 = context.contentResolver.openInputStream(imageUri)
-
         if (inputStream1 == null){
             Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
             return null
@@ -523,6 +525,7 @@ class ContactDetailFragment : Fragment() {
 
         val orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
 
+        // inputStream2 is to get the actual bitmap
         val inputStream2 = context.contentResolver.openInputStream(imageUri)
         if (inputStream2 == null){
             Toast.makeText(requireActivity(), "couldn't find stream", Toast.LENGTH_SHORT).show()
@@ -532,18 +535,20 @@ class ContactDetailFragment : Fragment() {
         val originalBitmap = BitmapFactory.decodeStream(inputStream2)
         inputStream2.close()
 
+        // Downsizing the bitmap to not have no more than 400 pixels in height preserving ratio
+        // Keeps dividing by 2 until an appropriate size
         val srcWidth = originalBitmap.width
         val srcHeight = originalBitmap.height
-
         var desiredHeight = srcHeight
         var divisions = 1
-        while (desiredHeight > 200){
+        while (desiredHeight > 400){
             desiredHeight /= 2
             divisions++
         }
 
         val scaledBitmap = originalBitmap.scale(srcWidth/divisions, srcHeight/divisions)
 
+        // Fix rotation issue if exists using the exif
         val photoBitmap = when (orientation) {
             ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(scaledBitmap, 90f)
             ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(scaledBitmap, 180f)

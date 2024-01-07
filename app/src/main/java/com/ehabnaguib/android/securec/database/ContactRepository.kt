@@ -43,8 +43,8 @@ class ContactRepository private constructor (context : Context) {
 
 
     companion object {
+        // A singleton for the repository
         private var INSTANCE: ContactRepository? = null
-
         fun initialize(context: Context) {
             if (INSTANCE == null) {
                 INSTANCE = ContactRepository(context)

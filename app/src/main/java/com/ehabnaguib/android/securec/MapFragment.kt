@@ -61,6 +61,7 @@ class MapFragment : Fragment() {
 
         location = args.location as LatLng?
 
+        // Updating the location upon user clicks on the map
         mapFragment?.getMapAsync { googleMap ->
             googleMap.setOnMapClickListener { latLng ->
                 googleMap.clear()
@@ -85,9 +86,6 @@ class MapFragment : Fragment() {
         }
         placesClient = Places.createClient(requireContext())
 
-        // Initialize the AutocompleteSupportFragment
-
-
         // Specify the types of place data to return
         autocompleteFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG))
 
@@ -97,7 +95,7 @@ class MapFragment : Fragment() {
                 updateMap(mapFragment, place.latLng)
             }
             override fun onError(status: Status) {
-                // TODO: Handle the error
+
             }
         })
         binding.saveButton.setOnClickListener {
@@ -144,6 +142,7 @@ class MapFragment : Fragment() {
 
 
     companion object {
+        // Used as keys to the values of the bundle passed back
         const val REQUEST_KEY_LOCATION = "REQUEST_KEY_LOCATION"
         const val BUNDLE_KEY_LOCATION = "BUNDLE_KEY_LOCATION"
     }

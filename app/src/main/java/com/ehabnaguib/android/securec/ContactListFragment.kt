@@ -57,7 +57,6 @@ class ContactListFragment : Fragment() {
 
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -81,6 +80,7 @@ class ContactListFragment : Fragment() {
 
         binding.contactRecyclerView.layoutManager = LinearLayoutManager(context)
 
+        // Listening for changes in the contact list and re-populate the recycler view
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 contactListViewModel.contacts.collect { contacts ->
@@ -100,7 +100,7 @@ class ContactListFragment : Fragment() {
 
 
 
-        //Adding the swipe-to-call functionality to the contact list
+        // Adding the swipe-to-call functionality to the contact list
         val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 binding.contactRecyclerView.removeViewAt(viewHolder.adapterPosition)
@@ -167,7 +167,6 @@ class ContactListFragment : Fragment() {
                     )
                     true
                 }
-
                 else -> false
             }
         }
@@ -192,6 +191,4 @@ class ContactListFragment : Fragment() {
             }
         }
     }
-
-
 }
