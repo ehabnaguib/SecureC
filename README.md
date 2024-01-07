@@ -8,6 +8,7 @@ Development Details:
 - Android Studio - Kotlin Language - XML views
 - MVVM Architecture
 - Single Activity Multiple Fragments
+- Navigation Graph
 - Repository Pattern - Room Database
 - View-binding
 - Recycler Views
