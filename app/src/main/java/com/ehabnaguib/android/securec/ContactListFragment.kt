@@ -84,13 +84,13 @@ class ContactListFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 contactListViewModel.contacts.collect { contacts ->
+                    allContacts = contacts.sortedBy { it.name }
                     binding.contactRecyclerView.adapter =
-                        ContactListAdapter(requireContext(), contacts.sortedBy { it.name }) { contactId ->
+                        ContactListAdapter(requireContext(), allContacts!!) { contactId ->
                             findNavController().navigate(
                                 ContactListFragmentDirections.openContactDetail(contactId)
                             )
                         }
-                    allContacts = contacts
                     searchResult = allContacts
                 }
             }

@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // Prevent screenshots and content from being shown in the recent apps list
-        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        // window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
 
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
