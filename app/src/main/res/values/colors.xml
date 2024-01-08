@@ -7,6 +7,8 @@
     <color name="gray2">#2B2B28</color>
     <color name="gray3">#6D6D6D</color>
     <color name="gray4">#BDBDBD</color>
+    <color name="gray5">#101010</color>
+    <color name="gray6">#1C2220</color>
     <color name="off_white">#EDEDED</color>
 
     <color name="blue1">#004378</color>
@@ -15,6 +17,8 @@
     <color name="blue4">#90CAF9</color>
     <color name="blue5">#00335C</color>
     <color name="blue6">#001C32</color>
+    <color name="blue7">#11171C</color>
+    <color name="blue8">#162532</color>
 
     <color name="green1">#33C638</color>
     <color name="red1">#CC0000</color>

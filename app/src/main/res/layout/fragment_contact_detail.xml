@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="16dp"
+    android:background="@color/blue7"
+    android:padding="16dp"
     android:orientation="vertical"
     tools:context=".ContactDetailFragment">
 
@@ -37,7 +38,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                app:cardBackgroundColor="@color/gray1"
+                app:cardBackgroundColor="@color/gray5"
                 app:cardCornerRadius="8dp"
                 app:cardElevation="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -125,7 +126,7 @@
                 android:layout_height="200dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
-                android:background="@color/gray2"
+                android:background="@color/gray6"
                 android:gravity="top|start"
                 android:hint="Write additional info here.."
                 android:importantForAutofill="no"

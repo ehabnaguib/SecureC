@@ -85,7 +85,7 @@ class ContactListFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 contactListViewModel.contacts.collect { contacts ->
                     binding.contactRecyclerView.adapter =
-                        ContactListAdapter(requireContext(), contacts) { contactId ->
+                        ContactListAdapter(requireContext(), contacts.sortedBy { it.name }) { contactId ->
                             findNavController().navigate(
                                 ContactListFragmentDirections.openContactDetail(contactId)
                             )
@@ -134,7 +134,7 @@ class ContactListFragment : Fragment() {
                     if (allContacts != null && newText != null) {
                         if (newText.isEmpty())
                             binding.contactRecyclerView.adapter =
-                                ContactListAdapter(requireContext(), allContacts!!) { contactId ->
+                                ContactListAdapter(requireContext(), allContacts!!.sortedBy { it.name }) { contactId ->
                                     findNavController().navigate(
                                         ContactListFragmentDirections.openContactDetail(contactId)
                                     )
