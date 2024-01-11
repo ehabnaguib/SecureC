@@ -35,7 +35,7 @@ object AuthenticationHandler {
 
                 val promptInfo = BiometricPrompt.PromptInfo.Builder()
                     .setTitle("Authentication required")
-                    .setSubtitle("Log in using your biometric credential")
+                    .setSubtitle("Log in using your lock screen security (device or biometric credentials)")
                     .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
                     .build()
 
