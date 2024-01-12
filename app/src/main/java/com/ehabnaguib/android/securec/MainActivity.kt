@@ -35,7 +35,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     override fun onResume() {
         super.onResume()
 
@@ -76,11 +75,16 @@ class MainActivity : AppCompatActivity() {
             binding.securityOverlay.visibility = GONE
     }
 
-
     override fun onRestart() {
         super.onRestart()
         mainActivityViewModel.shouldAuthenticate = true
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
+
 }
 
 

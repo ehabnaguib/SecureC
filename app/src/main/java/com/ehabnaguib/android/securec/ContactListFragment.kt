@@ -28,7 +28,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Fade
 import com.ehabnaguib.android.securec.databinding.FragmentContactListBinding
 import com.ehabnaguib.android.securec.model.Contact
-import com.ehabnaguib.android.securec.utils.SwipeToDeleteCallback
+import com.ehabnaguib.android.securec.utils.SwipeToCallCallback
 import kotlinx.coroutines.launch
 
 
@@ -101,7 +101,7 @@ class ContactListFragment : Fragment() {
 
 
         // Adding the swipe-to-call functionality to the contact list
-        val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
+        val swipeHandler = object : SwipeToCallCallback(requireContext()) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 binding.contactRecyclerView.removeViewAt(viewHolder.adapterPosition)
 
