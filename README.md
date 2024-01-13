@@ -8,10 +8,11 @@ SecureC also adds 2 features not currently in the phone contacts app which is ad
 
 Development Details:
 - Android Studio - Kotlin Language - XML views
-- MVVM Architecture
+- MVVM Architecture - Unidirectional Flow
 - Single Activity Multiple Fragments
 - Navigation Graph
 - Repository Pattern - Room Database
+- Corotuines - Flows
 - View-binding
 - Recycler Views
 - Integrating Google Maps and Google Places APIs
