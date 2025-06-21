@@ -5,6 +5,10 @@ plugins {
     id("androidx.navigation.safeargs.kotlin")
 }
 
+kapt {
+    correctErrorTypes = true
+}
+
 android {
     namespace = "com.ehabnaguib.android.securec"
     compileSdk = 34
