@@ -91,15 +91,15 @@ class ContactDetailFragment : Fragment() {
         }
     }
 
-    private val requestPhotoPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted)
-            photoPickerLauncher.launch("image/*")
-        else
-            Toast.makeText(requireActivity(),
-                "You need to allow permission to access files from your phone settings.", Toast.LENGTH_SHORT).show()
-    }
+//    private val requestPhotoPermissionLauncher = registerForActivityResult(
+//        ActivityResultContracts.RequestPermission()
+//    ) { isGranted: Boolean ->
+//        if (isGranted)
+//            photoPickerLauncher.launch("image/*")
+//        else
+//            Toast.makeText(requireActivity(),
+//                "You need to allow permission to access files from your phone settings.", Toast.LENGTH_SHORT).show()
+//    }
 
     private val photoPickerLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
@@ -199,45 +199,45 @@ class ContactDetailFragment : Fragment() {
                 saveContact()
             }
 
-            contactPhoto.setOnClickListener {
-                if(currentContact?.photo!!.isBlank())
-                    updatePhoto()
-                else {
-
-                    // Giving the options to update or remove the contact photo if one already exists
-                    val photoDialog = Dialog(requireContext())
-                    val dialogBinding: DialogPhotoOptionsBinding = DialogPhotoOptionsBinding.inflate(layoutInflater)
-                    photoDialog.setContentView(dialogBinding.root)
-
-                    dialogBinding.apply {
-                        btnUpdatePhoto.setOnClickListener {
-                            updatePhoto()
-                            photoDialog.dismiss()
-                        }
-
-                        btnRemovePhoto.setOnClickListener {
-                            deleteOldPhotoFile(requireContext())
-                            contactDetailViewModel.updateContact { oldContact ->
-                                oldContact.copy(photo = "")
-                            }
-                            contactPhoto.setImageResource(R.drawable.image_person_24)
-                            photoDialog.dismiss()
-                        }
-
-                        btnCancel.setOnClickListener {
-                            photoDialog.dismiss()
-                        }
-                    }
-
-                    val window = photoDialog.window
-                    window?.attributes?.gravity = Gravity.TOP
-
-                    // Make a transparent background for the dialog
-                    window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#00000000")))
-
-                    photoDialog.show()
-                }
-            }
+//            contactPhoto.setOnClickListener {
+//                if(currentContact?.photo!!.isBlank())
+//                    updatePhoto()
+//                else {
+//
+//                    // Giving the options to update or remove the contact photo if one already exists
+//                    val photoDialog = Dialog(requireContext())
+//                    val dialogBinding: DialogPhotoOptionsBinding = DialogPhotoOptionsBinding.inflate(layoutInflater)
+//                    photoDialog.setContentView(dialogBinding.root)
+//
+//                    dialogBinding.apply {
+//                        btnUpdatePhoto.setOnClickListener {
+//                            updatePhoto()
+//                            photoDialog.dismiss()
+//                        }
+//
+//                        btnRemovePhoto.setOnClickListener {
+//                            deleteOldPhotoFile(requireContext())
+//                            contactDetailViewModel.updateContact { oldContact ->
+//                                oldContact.copy(photo = "")
+//                            }
+//                            contactPhoto.setImageResource(R.drawable.image_person_24)
+//                            photoDialog.dismiss()
+//                        }
+//
+//                        btnCancel.setOnClickListener {
+//                            photoDialog.dismiss()
+//                        }
+//                    }
+//
+//                    val window = photoDialog.window
+//                    window?.attributes?.gravity = Gravity.TOP
+//
+//                    // Make a transparent background for the dialog
+//                    window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#00000000")))
+//
+//                    photoDialog.show()
+//                }
+//            }
         }
 
         // Getting the google maps location that the user set in the MapFragment and updating the contact
@@ -441,55 +441,55 @@ class ContactDetailFragment : Fragment() {
         builder.show()
     }
 
-    private fun updatePhoto() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            when {
-                ContextCompat.checkSelfPermission(
-                    requireActivity(),
-                    Manifest.permission.READ_MEDIA_IMAGES
-                ) == PackageManager.PERMISSION_GRANTED -> {
-                    photoPickerLauncher.launch("image/*")
-                }
-
-                ActivityCompat.shouldShowRequestPermissionRationale(
-                    requireActivity(), Manifest.permission.READ_MEDIA_IMAGES
-                ) -> {
-                    Toast.makeText(
-                        requireActivity(),
-                        "You need to grant permission to access photos",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                else -> {
-                    requestPhotoPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                }
-            }
-        } else {
-            when {
-                ContextCompat.checkSelfPermission(
-                    requireActivity(),
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED -> {
-                    photoPickerLauncher.launch("image/*")
-                }
-
-                ActivityCompat.shouldShowRequestPermissionRationale(
-                    requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE
-                ) -> {
-                    Toast.makeText(
-                        requireActivity(),
-                        "You need to grant permission to access photos",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                else -> {
-                    requestPhotoPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                }
-            }
-        }
-    }
+//    private fun updatePhoto() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//            when {
+//                ContextCompat.checkSelfPermission(
+//                    requireActivity(),
+//                    Manifest.permission.READ_MEDIA_IMAGES
+//                ) == PackageManager.PERMISSION_GRANTED -> {
+//                    photoPickerLauncher.launch("image/*")
+//                }
+//
+//                ActivityCompat.shouldShowRequestPermissionRationale(
+//                    requireActivity(), Manifest.permission.READ_MEDIA_IMAGES
+//                ) -> {
+//                    Toast.makeText(
+//                        requireActivity(),
+//                        "You need to grant permission to access photos",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//
+//                else -> {
+//                    requestPhotoPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+//                }
+//            }
+//        } else {
+//            when {
+//                ContextCompat.checkSelfPermission(
+//                    requireActivity(),
+//                    Manifest.permission.READ_EXTERNAL_STORAGE
+//                ) == PackageManager.PERMISSION_GRANTED -> {
+//                    photoPickerLauncher.launch("image/*")
+//                }
+//
+//                ActivityCompat.shouldShowRequestPermissionRationale(
+//                    requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE
+//                ) -> {
+//                    Toast.makeText(
+//                        requireActivity(),
+//                        "You need to grant permission to access photos",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//
+//                else -> {
+//                    requestPhotoPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+//                }
+//            }
+//        }
+//    }
 
     private fun deleteOldPhotoFile(context: Context) {
         val oldPhotoName: String = contactDetailViewModel.getPhotoName()
